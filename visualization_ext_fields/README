@@ -1,0 +1,5 @@
+Fri 10 Jun 2016 07:43:18 PM EDT
+
+Because camFieldVizualiation was a bit too messy.
+(n.b. at time of setup, still need to rsync instead of scp'ing between b/c
+of some wonky stuff that's happening with our ssh keys)
