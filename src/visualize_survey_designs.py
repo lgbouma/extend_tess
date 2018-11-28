@@ -62,9 +62,9 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         # set up colormap
         import seaborn as sns
         #rgbs = sns.color_palette("cubehelix_r", n_colors=17)
-        #rgbs = sns.color_palette('Paired', n_colors=17, desat=0.9)
-        #rgbs = sns.color_palette('Set2', n_colors=17)
-        rgbs = sns.color_palette('viridis', n_colors=17)
+        rgbs = sns.color_palette('Paired', n_colors=12, desat=0.9)
+        #rgbs = sns.color_palette('Set2', n_colors=12)
+        #rgbs = sns.color_palette('viridis', n_colors=12)
         cmap = mpl.colors.ListedColormap(rgbs)
         if isinstance(cbarbounds,np.ndarray):
             bounds=cbarbounds
@@ -145,7 +145,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
     ax.grid(color='lightgray', linestyle='--', linewidth=0.5, zorder=-1)
 
     ax.text(0.99,0.01,'github.com/lgbouma/extend_tess',
-            fontsize='xx-small',transform=ax.transAxes,
+            fontsize='4',transform=ax.transAxes,
             ha='right',va='bottom')
     fig.tight_layout()
     fig.savefig(os.path.join(savdir,savname),dpi=350, bbox_inches='tight')
@@ -162,13 +162,13 @@ def get_n_observations(dirnfile, outpath, n_stars):
     # just do it on an appropriate grid.
 
     # e.g., http://mathworld.wolfram.com/SpherePointPicking.html
-    uniform0 = np.linspace(0,1,n_stars)
-    uniform1 = np.linspace(0,1,n_stars)
-    #rand0 = np.random.uniform(low=0,high=1,size=n_stars)
-    #rand1 = np.random.uniform(low=0,high=1,size=n_stars)
+    # uniform0 = np.linspace(0,1,n_stars)
+    # uniform1 = np.linspace(0,1,n_stars)
+    rand0 = np.random.uniform(low=0,high=1,size=n_stars)
+    rand1 = np.random.uniform(low=0,high=1,size=n_stars)
 
-    theta = (2*np.pi*uniform0 * u.rad).to(u.deg).value
-    phi = (np.arccos(2*uniform1 - 1) * u.rad).to(u.deg).value - 90
+    theta = (2*np.pi*rand0 * u.rad).to(u.deg).value
+    phi = (np.arccos(2*rand1 - 1) * u.rad).to(u.deg).value - 90
 
     ras = theta*u.deg
     decs = phi*u.deg
@@ -233,50 +233,58 @@ if __name__=="__main__":
     # things to change
     filenames = ['idea_1_SN_ecliptic.csv',
                  'idea_2_SNSNS_hemi.csv',
-                 'idea_3_SNNSN_hemi.csv']
+                 'idea_3_SNNSN_hemi.csv',
+                 'idea_4_ecliptic_and_C3PO_quarters.csv'
+                ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
                    'idea_2_SNSNS_hemi_eclmap.png',
-                   'idea_3_SNNSN_eclmap.png']
+                   'idea_3_SNNSN_eclmap.png',
+                   'idea_4_ecliptic_and_C3PO_quarters_eclmap.png']
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
                     'idea_2_SNSNS_hemi_icrsmap.png',
-                    'idea_3_SNNSN_icrsmap.png']
+                    'idea_3_SNNSN_icrsmap.png',
+                    'idea_4_ecliptic_and_C3PO_quarters_icrsmap.png']
 
     titles = ['idea 1 SN->N(6)->ecliptic(10)->S(26)->N(remain)',
               'idea 2 SN->S(26)->N(28)->S(remain)',
-              'idea 3 SN->N(26)->S(26)->N(remain)'  ]
+              'idea 3 SN->N(26)->S(26)->N(remain)',
+              'idea 4 SN->ecliptic(10) + alternate C3PO quarters']
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
 
-    for dirnfile, eclsavname, icrssavname, title in zip(
-        dirnfiles, eclsavnames, icrssavnames, titles):
+    for ix, dirnfile, eclsavname, icrssavname, title in zip(
+        range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
+
+        if ix!=3:
+            continue
 
         obsdpath = dirnfile.replace('.csv', '_coords_observed.csv')
 
         if not os.path.exists(obsdpath):
+            # takes about 1 minute per strategy
             get_n_observations(dirnfile, obsdpath, int(2e5))
 
         df = pd.read_csv(obsdpath, sep=';')
         df['obs_duration'] = orbit_duration_days*df['n_observations']
 
-        plot_mwd(nparr(df['elon']),
-                 nparr(df['elat']),
-                 nparr(df['obs_duration']),
-                 origin=0, size=2, title=title,
+        cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
+        sel_durn = (nparr(df['obs_duration']) > 0)
+        plot_mwd(nparr(df['elon'])[sel_durn],
+                 nparr(df['elat'])[sel_durn],
+                 nparr(df['obs_duration'])[sel_durn],
+                 origin=0, size=1, title=title,
                  projection='mollweide', savdir=savdir,
                  savname=eclsavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=False,
-                 cbarbounds=None)
+                 cbarbounds=cbarbounds)
 
-        plot_mwd(nparr(df['ra']),
-                 nparr(df['dec']),
-                 nparr(df['obs_duration']),
-                 origin=0, size=2, title=title,
+        plot_mwd(nparr(df['ra'])[sel_durn],
+                 nparr(df['dec'])[sel_durn],
+                 nparr(df['obs_duration'])[sel_durn],
+                 origin=0, size=1, title=title,
                  projection='mollweide', savdir=savdir,
                  savname=icrssavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
-                 cbarbounds=None)
-
-        df.to_csv(obsdpath, sep=';', index=False)
-        print('rewrote {}'.format(obsdpath))
+                 cbarbounds=cbarbounds)
