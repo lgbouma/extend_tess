@@ -75,7 +75,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
         # plot the stars
         cax = ax.scatter(np.radians(x),np.radians(dec), c=color_val, s=size,
-                         lw=0, zorder=2, cmap=cmap, norm=norm, rasterized=True)
+                         lw=0, zorder=0, cmap=cmap, norm=norm, rasterized=True)
 
         # set up colorbar
         cbar = fig.colorbar(cax, cmap=cmap, norm=norm, boundaries=bounds,
@@ -113,7 +113,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
             gplane_x = _shift_lon_get_x(gplane_elon, origin)
             gplane_dec = gplane_elat
         ax.scatter(np.radians(gplane_x),np.radians(gplane_dec),
-                   c='lightgray', s=2, zorder=3)
+                   c='lightgray', s=0.3, zorder=3)
         gcenter = SkyCoord('17h45m40.04s', '-29d00m28.1s', frame='icrs')
         gcenter_ra, gcenter_dec = gcenter.icrs.ra.value, gcenter.icrs.dec.value
         gcenter_elon = gcenter.barycentrictrueecliptic.lon.value
@@ -132,7 +132,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
     tick_labels = np.array([150, 120, 90, 60, 30, 0, 330, 300, 270, 240, 210])
     tick_labels = np.remainder(tick_labels+360+origin,360)
-    ax.set_xticklabels(tick_labels, fontsize='x-small')
+    ax.set_xticklabels(tick_labels, fontsize='x-small', zorder=5)
     ax.set_yticklabels(np.arange(-75,75+15,15), fontsize='x-small')
 
     ax.set_title(title, y=1.05, fontsize='small')
@@ -142,7 +142,10 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
     else:
         ax.set_xlabel('ecl lon', fontsize='x-small')
         ax.set_ylabel('ecl lat', fontsize='x-small')
-    ax.grid(color='lightgray', linestyle='--', linewidth=0.5, zorder=-1)
+
+    #ax.set_axisbelow(True)
+    ax.grid(color='lightgray', linestyle='--', linewidth=0.5, zorder=-3,
+            alpha=0.15)
 
     ax.text(0.99,0.01,'github.com/lgbouma/extend_tess',
             fontsize='4',transform=ax.transAxes,
@@ -234,30 +237,45 @@ if __name__=="__main__":
     filenames = ['idea_1_SN_ecliptic.csv',
                  'idea_2_SNSNS_hemi.csv',
                  'idea_3_SNNSN_hemi.csv',
-                 'idea_4_ecliptic_and_C3PO_quarters.csv'
+                 'idea_4_ecliptic_and_C3PO_quarters.csv',
+                 'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1.csv',
+                 'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv',
+                 'primary_mission.csv'
                 ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
                    'idea_2_SNSNS_hemi_eclmap.png',
                    'idea_3_SNNSN_eclmap.png',
-                   'idea_4_ecliptic_and_C3PO_quarters_eclmap.png']
+                   'idea_4_ecliptic_and_C3PO_quarters_eclmap.png',
+                   'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_eclmap.png',
+                   'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png',
+                   'primary_mission_eclmap.png'
+                  ]
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
                     'idea_2_SNSNS_hemi_icrsmap.png',
                     'idea_3_SNNSN_icrsmap.png',
-                    'idea_4_ecliptic_and_C3PO_quarters_icrsmap.png']
+                    'idea_4_ecliptic_and_C3PO_quarters_icrsmap.png',
+                    'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_icrsmap.png',
+                    'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
+                    'primary_mission_icrsmap.png'
+                   ]
 
     titles = ['idea 1 SN->N(6)->ecliptic(10)->S(26)->N(remain)',
               'idea 2 SN->S(26)->N(28)->S(remain)',
               'idea 3 SN->N(26)->S(26)->N(remain)',
-              'idea 4 SN->ecliptic(10) + alternate C3PO quarters']
+              'idea 4 SN->ecl(10) + alternate C3PO 6 orbit quarters',
+              'idea 5 SN->ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
+              'idea 6 SN->ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
+              'primary mission'
+             ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
 
     for ix, dirnfile, eclsavname, icrssavname, title in zip(
         range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
 
-        if ix!=3:
+        if ix not in [6]:
             continue
 
         obsdpath = dirnfile.replace('.csv', '_coords_observed.csv')
@@ -274,7 +292,7 @@ if __name__=="__main__":
         plot_mwd(nparr(df['elon'])[sel_durn],
                  nparr(df['elat'])[sel_durn],
                  nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=1, title=title,
+                 origin=0, size=.8, title=title,
                  projection='mollweide', savdir=savdir,
                  savname=eclsavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=False,
@@ -283,7 +301,7 @@ if __name__=="__main__":
         plot_mwd(nparr(df['ra'])[sel_durn],
                  nparr(df['dec'])[sel_durn],
                  nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=1, title=title,
+                 origin=0, size=.8, title=title,
                  projection='mollweide', savdir=savdir,
                  savname=icrssavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
