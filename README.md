@@ -6,7 +6,7 @@ assorted calculations for TESS mission extension
   output from `tessmaps`, for possible pointing strategies of extended mission.
 
 * `planet_yield_plots.py`: make plots (mostly bar charts) to assess the output
-  of the @mrtommyb detection simulations, at
+  of the [@mrtommyb](https://github.com/mrtommyb) detection simulations, at
   <https://github.com/mrtommyb/textended>.
 
 * `period_barchart.py`: makes plot comparing "C3PO", "hemi", and "allsky"
