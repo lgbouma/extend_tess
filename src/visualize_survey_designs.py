@@ -79,17 +79,15 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
         # set up colorbar
         cbar = fig.colorbar(cax, cmap=cmap, norm=norm, boundaries=bounds,
-                            fraction=0.025, pad=0.03, #ticks=np.arange(13)+1,
+                            fraction=0.025, pad=0.03,
+                            ticks=27.32*(np.arange(13)+1),
                             orientation='vertical')
 
-        # ylabels = np.arange(1,18,1)*27.32
-
-        # cbar.ax.set_yticklabels(map(str, ylabels))
+        ylabels = list(map(str,np.round(27.32*(np.arange(1,13)),1)))
+        ylabels[-1] = '$\geq \! 328$'
+        cbar.ax.set_yticklabels(ylabels, fontsize='x-small')
         cbar.set_label('days observed', rotation=270, labelpad=10)
         cbar.ax.tick_params(direction='in')
-
-        # label each sector. this involves computing the positions first...
-        #TODO
 
     else:
         ax.scatter(np.radians(x),np.radians(dec), c=color_val, s=size,
@@ -156,7 +154,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
 
 
-def get_n_observations(dirnfile, outpath, n_stars):
+def get_n_observations(dirnfile, outpath, n_stars, merged=False):
 
     np.random.seed(42)
 
@@ -178,7 +176,13 @@ def get_n_observations(dirnfile, outpath, n_stars):
 
     coords = SkyCoord(ra=ras, dec=decs, frame='icrs')
 
-    df = pd.read_csv(dirnfile, sep=';')
+    if merged:
+        df_pri = pd.read_csv('../data/primary_mission.csv', sep=';')
+        df_ext = pd.read_csv(dirnfile, sep=';')
+        df = pd.concat([df_pri, df_ext])
+
+    else:
+        df = pd.read_csv(dirnfile, sep=';')
 
     lats = nparr([
         nparr(df['cam1_elat']),
@@ -227,7 +231,11 @@ def get_n_observations(dirnfile, outpath, n_stars):
     print('saved {}'.format(outpath))
 
 
-if __name__=="__main__":
+def only_extended_only_primary():
+    """
+    make plots for each extended mission, and the primary mission.
+    (no merging)
+    """
 
     datadir = '../data/'
     savdir = '../results/visualize_survey_designs/'
@@ -261,12 +269,12 @@ if __name__=="__main__":
                     'primary_mission_icrsmap.png'
                    ]
 
-    titles = ['idea 1 SN->N(6)->ecliptic(10)->S(26)->N(remain)',
-              'idea 2 SN->S(26)->N(28)->S(remain)',
-              'idea 3 SN->N(26)->S(26)->N(remain)',
-              'idea 4 SN->ecl(10) + alternate C3PO 6 orbit quarters',
-              'idea 5 SN->ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
-              'idea 6 SN->ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
+    titles = ['idea 1 N(6)->ecliptic(10)->S(26)->N(remain)',
+              'idea 2 S(26)->N(28)->S(remain)',
+              'idea 3 N(26)->S(26)->N(remain)',
+              'idea 4 ecl(10) + alternate C3PO 6 orbit quarters',
+              'idea 5 ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
+              'idea 6 ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
               'primary mission'
              ]
 
@@ -274,9 +282,6 @@ if __name__=="__main__":
 
     for ix, dirnfile, eclsavname, icrssavname, title in zip(
         range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
-
-        if ix not in [6]:
-            continue
 
         obsdpath = dirnfile.replace('.csv', '_coords_observed.csv')
 
@@ -306,3 +311,92 @@ if __name__=="__main__":
                  savname=icrssavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
                  cbarbounds=cbarbounds)
+
+
+def merged_with_primary():
+    """
+    make plots for each extended mission, merged with the primary mission.
+    """
+
+    datadir = '../data/'
+    savdir = '../results/visualize_survey_designs/merged_with_primary/'
+    orbit_duration_days = 27.32 / 2
+
+    # things to change
+    filenames = ['idea_1_SN_ecliptic.csv',
+                 'idea_2_SNSNS_hemi.csv',
+                 'idea_3_SNNSN_hemi.csv',
+                 'idea_4_ecliptic_and_C3PO_quarters.csv',
+                 'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1.csv',
+                 'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv'
+                ]
+
+    eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
+                   'idea_2_SNSNS_hemi_eclmap.png',
+                   'idea_3_SNNSN_eclmap.png',
+                   'idea_4_ecliptic_and_C3PO_quarters_eclmap.png',
+                   'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_eclmap.png',
+                   'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png'
+                  ]
+
+    icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
+                    'idea_2_SNSNS_hemi_icrsmap.png',
+                    'idea_3_SNNSN_icrsmap.png',
+                    'idea_4_ecliptic_and_C3PO_quarters_icrsmap.png',
+                    'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_icrsmap.png',
+                    'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
+                   ]
+
+    titles = ['idea 1 SN->N(6)->ecliptic(10)->S(26)->N(remain)',
+              'idea 2 SN->S(26)->N(28)->S(remain)',
+              'idea 3 SN->N(26)->S(26)->N(remain)',
+              'idea 4 SN->ecl(10) + alternate C3PO 6 orbit quarters',
+              'idea 5 SN->ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
+              'idea 6 SN->ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
+             ]
+
+    dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
+
+    for ix, dirnfile, eclsavname, icrssavname, title in zip(
+        range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
+
+        obsdpath = dirnfile.replace('.csv', '_coords_observed_merged.csv')
+
+        if not os.path.exists(obsdpath):
+            # takes about 1 minute per strategy
+            get_n_observations(dirnfile, obsdpath, int(2e5), merged=True)
+
+        df = pd.read_csv(obsdpath, sep=';')
+        df['obs_duration'] = orbit_duration_days*df['n_observations']
+
+        cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
+        sel_durn = (nparr(df['obs_duration']) > 0)
+        plot_mwd(nparr(df['elon'])[sel_durn],
+                 nparr(df['elat'])[sel_durn],
+                 nparr(df['obs_duration'])[sel_durn],
+                 origin=0, size=.8, title=title,
+                 projection='mollweide', savdir=savdir,
+                 savname=eclsavname,
+                 overplot_galactic_plane=True, is_tess=True, is_radec=False,
+                 cbarbounds=cbarbounds)
+
+        plot_mwd(nparr(df['ra'])[sel_durn],
+                 nparr(df['dec'])[sel_durn],
+                 nparr(df['obs_duration'])[sel_durn],
+                 origin=0, size=.8, title=title,
+                 projection='mollweide', savdir=savdir,
+                 savname=icrssavname,
+                 overplot_galactic_plane=True, is_tess=True, is_radec=True,
+                 cbarbounds=cbarbounds)
+
+
+if __name__=="__main__":
+
+    separated=1  # make plots for each extended mission, and the primary mission.
+    merged=1     # make plots for merged primary + extended mission.
+
+    if separated:
+        only_extended_only_primary()
+
+    if merged:
+        merged_with_primary()
