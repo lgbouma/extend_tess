@@ -1,0 +1,116 @@
+====================
+AUTHOR: Luke Bouma
+DATE: Sat 01 Dec 2018 02:44:53 PM EST
+
+DESCRIPTION:
+
+Some figures were requested by Winn to decide between extended mission
+strategies ("idea 1, ecliptic + hemi", vs "idea 4, ecliptic + C3PO", mainly).
+
+LEGEND:
+
+"-" means it's done.
+"~" is a reference to the name of the appropriate plot.
+"LB" prefaces a comment by yours truly.
+"*" means it's not yet done, because I didn't have the appropriate data.
+"X" means I didn't think it was necessarily the thing we wanted for deciding on
+the observing strategy.
+
+====================
+
+- Radius/period diagram:
+ - TESS Prime planets in blue
+ - TESS Extended planets in red (solid symbol for multi-transiting systems)
+   ~ radius_period_diagram.png,
+   ~ radius_period_diagram_multitransiting.png
+
+- Radius/insolation diagram
+ - TESS Prime in blue
+ - TESS Extended in red
+   ~ radius_insolation_diagram.png
+
+- Number of simulated planets in the Prime Mission:
+  - Bar chart of total, with SNR>10 and Ntransits >= 1
+    ~ number_of_detections_vs_plradius_barchart.png has SNR>10, and Ntransits >=3. The
+      Ntransits >=1 output from Tom's simulations haven't yet been run.
+
+  - around stars brighter than T=10 (to compare with progress so far)
+    ~ number_of_detections_vs_plradius_barchart_Tmaglt10.png
+
+  * for which only 1 transit is detected
+    LB: not currently available (see above), but... I'm also not convinced
+        that we need this for decision making.
+
+  - vs number of transits
+    ~ number_of_detections_vs_ntra_barchart.png
+
+  - which are part of multitransiting systems
+    ~ justmultis_number_of_detections_vs_plradius_barchart.png
+
+  - which are in the HZ
+    ~ number_of_detections_vs_insolation_barchart.png
+
+  * around stars with transit spectroscopy metric exceeding that of some
+      nominal planet (perhaps LHS 1140b)
+    LB: we should perhaps have Drake do this -- he has the up-to-date JWST
+    noise model.  (And the metric could be "SNR for the entire detection of
+    water vapor" as he suggested)
+
+- Number of planets found in the EM
+  - Total New Planets, with SNR>10 and Ntransits >= 1
+    ~ number_of_detections_vs_plradius_barchart.png has SNR>10, and Ntransits >=3. The
+      Ntransits >=1 output from Tom's simulations aren't yet available.
+
+  - New Planets found due to increased SNR relative to Prime
+  - New Planets found in regions of sky that Prime did not observe
+    ~ new_planets_newsky_or_snrboost_vs_plradius.png
+
+  - Planets for which Prime detected 1 transit and Extended detects more
+  - Planets for which Prime detected 2 transits and Extended detects more
+    ~ oneortwotraonly_number_of_detections_vs_plradius_barchart.png
+    ~ oneortwotraonly_number_of_detections_vs_ntra_barchart.png
+
+-  Number of New Planets
+  - around stars brighter than T=10
+    ~ number_of_detections_vs_plradius_barchart_Tmaglt10.png
+
+  - which are part of multitransiting systems
+    ~ justmultis_number_of_detections_vs_plradius_barchart.png
+
+  - which are in the HZ
+    ~ number_of_detections_vs_insolation_barchart.png
+
+  * around stars with transit spectroscopy metric exceeding that of some
+      nominal planet (perhaps LHS 1140b)
+
+- HR diagram of host stars of planets found by
+
+  ~ quantatively more useful: number_of_detections_vs_sptype_barchart.png
+
+   X Kepler (black)
+   X TESS Prime (blue)
+   X TESS Extended (red)
+
+- Concatenating the Prime and Extended, what is the total fraction of the sky
+  that is covered by TESS?
+
+  - Did this by using LB's sky-mapping code. Associated skymaps are at
+    `/results/visualize_survey_designs/merged_with_primary`.
+
+  - Then ask: what fraction of the randomly distributed points got at least 1
+    observation?
+
+    idea_1_SN_ecliptic_coords_observed_merged.csv --- 87.52% of sky observed
+    idea_2_SNSNS_hemi_coords_observed_merged.csv --- 79.80% of sky observed
+    idea_3_SNNSN_hemi_coords_observed_merged.csv --- 79.80% of sky observed
+    idea_4_ecliptic_and_C3PO_quarters_coords_observed_merged.csv --- 88.94% of sky observed
+    idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_coords_observed_merged.csv --- 89.28% of sky observed
+    idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_coords_observed_merged.csv --- 89.62% of sky observed
+
+* Improvement in ability to predict transit times in 2022
+  * for HZ planets
+  * other cases?
+  
+  LB: to do this calculation, you need to know if the planet is detected in
+  "postage stamps" or "full frame images". (This affects the precision with
+  which you measure the midtime).
