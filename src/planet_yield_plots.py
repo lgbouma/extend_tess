@@ -14,9 +14,8 @@ import matplotlib.pyplot as plt
 from numpy import array as nparr
 import os
 
-OUTDIR='../results/planet_yield_plots/idea_1_ecliptic_plus_hemi/'
 
-def get_data():
+def get_data(fpath):
     """
     available columns:
 
@@ -36,11 +35,11 @@ def get_data():
     'detected_primary', 'insol', 'inOptimisticHZ']
     """
 
-    df = pd.read_csv('../data/tommyb/detected_planet_catalog-v1.csv.bz2')
+    df = pd.read_csv(fpath)
 
     return df
 
-def radius_period_diagram(df, xlim=(0.3,500), ylim=(0.3,30)):
+def radius_period_diagram(df, xlim=(0.3,500), ylim=(0.3,30), outdir=None):
 
     fig,ax = plt.subplots(figsize=(6,4))
 
@@ -61,7 +60,7 @@ def radius_period_diagram(df, xlim=(0.3,500), ylim=(0.3,30)):
     ax.set_xscale('log')
     ax.set_yscale('log')
 
-    ax.legend(loc='best', fontsize='xx-small')
+    ax.legend(loc='lower right', fontsize='xx-small')
 
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
@@ -69,12 +68,16 @@ def radius_period_diagram(df, xlim=(0.3,500), ylim=(0.3,30)):
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
 
-    savpath = OUTDIR+'radius_period_diagram.png'
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
+    savpath = os.path.join(outdir,'radius_period_diagram.png')
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
     print('made {}'.format(savpath))
 
 
-def radius_period_diagram_multitransiting(df, xlim=(0.3,500), ylim=(0.3,30)):
+def radius_period_diagram_multitransiting(df, xlim=(0.3,500), ylim=(0.3,30),
+                                          outdir=None):
 
     fig,ax = plt.subplots(figsize=(6,4))
 
@@ -119,7 +122,7 @@ def radius_period_diagram_multitransiting(df, xlim=(0.3,500), ylim=(0.3,30)):
     ax.set_xscale('log')
     ax.set_yscale('log')
 
-    ax.legend(loc='best', fontsize='xx-small')
+    ax.legend(loc='lower right', fontsize='xx-small')
 
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
@@ -127,12 +130,15 @@ def radius_period_diagram_multitransiting(df, xlim=(0.3,500), ylim=(0.3,30)):
     ax.set_xlim(xlim)
     ax.set_ylim(ylim)
 
-    savpath = OUTDIR+'radius_period_diagram_multitransiting.png'
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
+    savpath = os.path.join(outdir,'radius_period_diagram_multitransiting.png')
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
     print('made {}'.format(savpath))
 
 
-def radius_insolation_diagram(df, xlim=None, ylim=None):
+def radius_insolation_diagram(df, xlim=None, ylim=None, outdir=None):
 
     fig,ax = plt.subplots(figsize=(6,4))
 
@@ -163,7 +169,10 @@ def radius_insolation_diagram(df, xlim=None, ylim=None):
     if ylim:
         ax.set_ylim(ylim)
 
-    savpath = OUTDIR+'radius_insolation_diagram.png'
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
+    savpath = os.path.join(outdir,'radius_insolation_diagram.png')
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
     print('made {}'.format(savpath))
 
@@ -191,7 +200,7 @@ def autolabel2(rects, ax):
 
 def number_of_detections_vs_plradius_barchart(df, txt=None, ylim=None,
                                               justmultis=False, outstr='',
-                                              yscale=None):
+                                              yscale=None, outdir=None):
 
     in_pri = nparr(df['detected_primary'])
     after_ext = nparr(df['detected'])
@@ -255,7 +264,11 @@ def number_of_detections_vs_plradius_barchart(df, txt=None, ylim=None,
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
 
-    savpath = OUTDIR+outstr+'number_of_detections_vs_plradius_barchart.png'
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
+    savpath = os.path.join(
+        outdir,outstr+'number_of_detections_vs_plradius_barchart.png')
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
     print('made {}'.format(savpath))
 
@@ -263,7 +276,8 @@ def number_of_detections_vs_plradius_barchart(df, txt=None, ylim=None,
 def number_of_detections_vs_plradius_barchart_Tmaglt(df, txt=None, Tmagcut=10,
                                                      ylim=None,
                                                      justmultis=False,
-                                                     outstr=''):
+                                                     outstr='', outdir=None,
+                                                     yscale='log'):
 
     in_pri = nparr(df['detected_primary'])
     after_ext = nparr(df['detected'])
@@ -305,7 +319,7 @@ def number_of_detections_vs_plradius_barchart_Tmaglt(df, txt=None, Tmagcut=10,
     ax.set_xlabel('Planet radii ($ R_\oplus$)')
     ax.set_ylabel('Number of planets')
 
-    ax.set_yscale('log')
+    ax.set_yscale(yscale)
 
     autolabel(h_ext, ax)
     autolabel2(h_pri, ax)
@@ -318,15 +332,19 @@ def number_of_detections_vs_plradius_barchart_Tmaglt(df, txt=None, Tmagcut=10,
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
 
-    savpath = ( OUTDIR+outstr+
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
+    savpath = ( os.path.join(outdir,outstr+
         'number_of_detections_vs_plradius_barchart_Tmaglt{:d}.png'.
-        format(Tmagcut)
+        format(Tmagcut))
     )
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
     print('made {}'.format(savpath))
 
 
-def number_of_detections_vs_ntra_barchart(df, txt=None, ylim=None, outstr=''):
+def number_of_detections_vs_ntra_barchart(df, txt=None, ylim=None, outstr='',
+                                          outdir=None):
 
     in_pri = nparr(df['detected_primary'])
     after_ext = nparr(df['detected'])
@@ -366,16 +384,21 @@ def number_of_detections_vs_ntra_barchart(df, txt=None, ylim=None, outstr=''):
     if ylim:
         ax.set_ylim(ylim)
 
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
 
-    savpath = OUTDIR+outstr+'number_of_detections_vs_ntra_barchart.png'
+    savpath = os.path.join(
+        outdir,outstr+'number_of_detections_vs_ntra_barchart.png')
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
     print('made {}'.format(savpath))
 
 
 def number_of_detections_vs_insolation_barchart(df, txt=None, ylim=None,
-                                                justmultis=False, outstr=''):
+                                                justmultis=False, outstr='',
+                                                outdir=None):
 
     in_pri = nparr(df['detected_primary'])
     after_ext = nparr(df['detected'])
@@ -427,10 +450,13 @@ def number_of_detections_vs_insolation_barchart(df, txt=None, ylim=None,
     if ylim:
         ax.set_ylim(ylim)
 
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
 
-    savpath = ( os.path.join( OUTDIR,
+    savpath = ( os.path.join( outdir,
         '{:s}number_of_detections_vs_insolation_barchart.png'.format(outstr))
     )
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
@@ -438,7 +464,8 @@ def number_of_detections_vs_insolation_barchart(df, txt=None, ylim=None,
 
 
 def number_of_detections_vs_sptype_barchart(df, txt=None, ylim=None,
-                                            justmultis=False, outstr=''):
+                                            justmultis=False, outstr='',
+                                            outdir=None):
 
 
     in_pri = nparr(df['detected_primary'])
@@ -491,17 +518,21 @@ def number_of_detections_vs_sptype_barchart(df, txt=None, ylim=None,
     if ylim:
         ax.set_ylim(ylim)
 
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
 
-    savpath = ( os.path.join( OUTDIR,
+    savpath = ( os.path.join( outdir,
         '{:s}number_of_detections_vs_sptype_barchart.png'.format(outstr))
     )
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
     print('made {}'.format(savpath))
 
 
-def new_planets_newsky_or_snrboost_vs_plradius(df, txt=None, ylim=None):
+def new_planets_newsky_or_snrboost_vs_plradius(df, txt=None, ylim=None,
+                                               outdir=None):
     """
     * Number of planets found in the EM
         * New Planets found due to increased SNR relative to Prime
@@ -549,7 +580,7 @@ def new_planets_newsky_or_snrboost_vs_plradius(df, txt=None, ylim=None):
     ax.set_xlabel('Planet radii ($ R_\oplus$)')
     ax.set_ylabel('Number of planets')
 
-    ax.set_yscale('log')
+    ax.set_yscale('linear')
 
     autolabel(h_newsky, ax)
     autolabel(h_snrorntra, ax)
@@ -559,10 +590,13 @@ def new_planets_newsky_or_snrboost_vs_plradius(df, txt=None, ylim=None):
     if ylim:
         ax.set_ylim(ylim)
 
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
 
-    savpath = ( os.path.join( OUTDIR,
+    savpath = ( os.path.join( outdir,
         'new_planets_newsky_or_snrboost_vs_plradius.png' )
     )
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
@@ -571,65 +605,86 @@ def new_planets_newsky_or_snrboost_vs_plradius(df, txt=None, ylim=None):
 
 if __name__=="__main__":
 
-    df = get_data()
+    names = ['idea_1_SNE','idea_2_SNSNS','idea_3_SNNSN','idea_4_EC3PO']
+    outdirs = [os.path.join('../results/planet_yield_plots/',dirname)
+               for dirname in names]
+    datanames = [n.split('_')[-1] for n in names]
+    datapaths = [os.path.join(
+        '../data/tommyb', 'detected_planet_catalog_{:s}-v3.csv.bz2'.
+        format(dn)) for dn in datanames]
 
-    one_thru_three = 0
-    three_thru_eight = 0
+    one_thru_three = 1
+    three_thru_eight = 1
     nine_thru_X = 1
 
-    if one_thru_three:
-        radius_period_diagram(df)
-        radius_period_diagram_multitransiting(df)
-        radius_insolation_diagram(df)
+    for datapath, outdir in zip(datapaths, outdirs):
+        print(datapath)
+        df = get_data(datapath)
 
-    if three_thru_eight:
+        if not os.path.exists(outdir):
+            os.mkdir(outdir)
 
-        number_of_detections_vs_plradius_barchart(
-            df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
-            ylim=(1,3800))
+        if one_thru_three:
+            radius_period_diagram(df, outdir=outdir, xlim=(0.3,500),
+                                  ylim=(0.3,30))
+            radius_period_diagram_multitransiting(df, outdir=outdir,
+                                                  xlim=(0.3,500),
+                                                  ylim=(0.3,30))
+            radius_insolation_diagram(df, outdir=outdir, xlim=(0.11, 2.5e5),
+                                      ylim=(0.45,30))
 
-        Tmagcut=10
-        number_of_detections_vs_plradius_barchart_Tmaglt(
-            df, Tmagcut=Tmagcut,
-            txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$ '+
-            'and T<{:d}'.format(Tmagcut),
-            ylim=(1,3800))
+        if three_thru_eight:
 
-        number_of_detections_vs_ntra_barchart(
-            df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
-            ylim=(0,1600))
+            number_of_detections_vs_plradius_barchart(
+                df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
+                ylim=(1,3800), outdir=outdir)
 
+            Tmagcut=10
+            number_of_detections_vs_plradius_barchart_Tmaglt(
+                df, Tmagcut=Tmagcut,
+                txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$ '+
+                'and T<{:d}'.format(Tmagcut),
+                ylim=(1,3800), outdir=outdir)
 
-        number_of_detections_vs_plradius_barchart(
-            df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$ and just multis',
-            ylim=(1,3800), outstr='justmultis_')
-
-        Tmagcut=10
-        number_of_detections_vs_plradius_barchart_Tmaglt(
-            df, Tmagcut=Tmagcut,
-            txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$ '+
-            'and T<{:d} and just multis'.format(Tmagcut),
-            ylim=(1,3800), outstr='justmultis_')
-
-    if nine_thru_X:
-
-        number_of_detections_vs_insolation_barchart(
-            df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$')
-
-        number_of_detections_vs_sptype_barchart(
-            df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$')
-
-        new_planets_newsky_or_snrboost_vs_plradius(
-            df, txt='new planets only\nSNR>10 and $N_{\mathrm{tra,ext}} >= 3$'
-        )
-
-        number_of_detections_vs_ntra_barchart(
-            df,
-            txt='SNR>10 and $N_{\mathrm{tra,pri}}$ is 1 or 2, and $N_{\mathrm{tra,ext}} >= 3$',
-            ylim=(0,1600), outstr='oneortwotraonly_')
-
-        number_of_detections_vs_plradius_barchart(
-            df, txt='SNR>10 and $N_{\mathrm{tra,pri}}$ is 1 or 2, and $N_{\mathrm{tra,ext}} >= 3$',
-            ylim=(1,3800), outstr='oneortwotraonly_', yscale='log')
+            number_of_detections_vs_ntra_barchart(
+                df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
+                ylim=(0,1600), outdir=outdir)
 
 
+            number_of_detections_vs_plradius_barchart(
+                df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$ and just multis',
+                ylim=(1,3800), outstr='justmultis_', outdir=outdir)
+
+            Tmagcut=10
+            number_of_detections_vs_plradius_barchart_Tmaglt(
+                df, Tmagcut=Tmagcut,
+                txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$ '+
+                'and T<{:d} and just multis'.format(Tmagcut),
+                ylim=(0,1000), outstr='justmultis_', outdir=outdir,
+                yscale='linear')
+
+        if nine_thru_X:
+
+            number_of_detections_vs_insolation_barchart(
+                df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
+                outdir=outdir, ylim=(0.5, 6800))
+
+            number_of_detections_vs_sptype_barchart(
+                df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
+                outdir=outdir, ylim=(0,1800))
+
+            new_planets_newsky_or_snrboost_vs_plradius(
+                df,
+                txt='new planets only\nSNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
+                outdir=outdir,
+                ylim=(0.5,2100)
+            )
+
+            number_of_detections_vs_ntra_barchart(
+                df,
+                txt='SNR>10 and $N_{\mathrm{tra,pri}}$ is 1 or 2, and $N_{\mathrm{tra,ext}} >= 3$',
+                ylim=(0,1600), outstr='oneortwotraonly_', outdir=outdir)
+
+            number_of_detections_vs_plradius_barchart(
+                df, txt='SNR>10 and $N_{\mathrm{tra,pri}}$ is 1 or 2, and $N_{\mathrm{tra,ext}} >= 3$',
+                ylim=(0,1000), outstr='oneortwotraonly_', yscale='linear', outdir=outdir)
