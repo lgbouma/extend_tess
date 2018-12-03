@@ -273,6 +273,82 @@ def number_of_detections_vs_plradius_barchart(df, txt=None, ylim=None,
     print('made {}'.format(savpath))
 
 
+def number_of_detections_vs_period_barchart(df, txt=None, ylim=None,
+                                            justmultis=False, outstr='',
+                                            yscale=None, outdir=None):
+
+    in_pri = nparr(df['detected_primary'])
+    after_ext = nparr(df['detected'])
+
+    if outstr=='justmultis_':
+        u, u_inds, inv_inds, counts = np.unique(df['TICID'],
+                                                return_index=True,
+                                                return_inverse=True,
+                                                return_counts=True)
+        df_multiplicity = counts[inv_inds]
+        is_single = df_multiplicity == 1
+        is_multi = df_multiplicity != 1
+
+        after_ext &= is_multi
+        in_pri &= is_multi
+
+    elif outstr=='oneortwotraonly_':
+        ntra_pri = df['Ntransits_primary']
+        in_pri &= (  (ntra_pri==1) | (ntra_pri==2)  )
+        after_ext &= (  (ntra_pri==1) | (ntra_pri==2)  )
+
+
+    counts_ext = np.histogram(df.loc[after_ext, 'planetPeriod'],
+                              bins=[0,20,50,1000])
+
+    counts_pri = np.histogram(df.loc[in_pri, 'planetPeriod'],
+                              bins=[0,20,50,1000])
+
+    tl = ['$<20$', '$20-50$', '$>50$']
+
+    plt.close("all")
+    fig, ax = plt.subplots(1,1,figsize=[6,6])
+
+    if outstr not in ['oneortwotraonly_']:
+        h_pri = ax.bar(np.arange(3), counts_pri[0], tick_label=tl,
+                       label='after primary', zorder=2, color='#1f77b4')
+    h_ext = ax.bar(np.arange(3), counts_ext[0], tick_label=tl,
+                   label='after extended', zorder=1, color='#ff7f0e')
+
+    ax.set_xlabel('Orbital period (days)')
+    ax.set_ylabel('Number of planets')
+
+    if yscale:
+        ax.set_yscale(yscale)
+    else:
+        ax.set_yscale('log')
+
+    if txt:
+        ax.text(0.05, 0.8, txt, ha='left', va='center', fontsize='x-small',
+                transform=ax.transAxes)
+
+    autolabel(h_ext, ax)
+    if outstr not in ['oneortwotraonly_']:
+        autolabel2(h_pri, ax)
+
+    ax.legend()
+
+    if ylim:
+        ax.set_ylim(ylim)
+
+    ax.get_yaxis().set_tick_params(which='both', direction='in')
+    ax.get_xaxis().set_tick_params(which='both', direction='in')
+
+    titlestr = os.path.basename(outdir).replace('_',' ')
+    ax.set_title(titlestr, fontsize='x-small')
+
+    savpath = os.path.join(
+        outdir,outstr+'number_of_detections_vs_period_barchart.png')
+    fig.savefig(savpath, bbox_inches='tight', dpi=400)
+    print('made {}'.format(savpath))
+
+
+
 def number_of_detections_vs_plradius_barchart_Tmaglt(df, txt=None, Tmagcut=10,
                                                      ylim=None,
                                                      justmultis=False,
@@ -613,9 +689,10 @@ if __name__=="__main__":
         '../data/tommyb', 'detected_planet_catalog_{:s}-v3.csv.bz2'.
         format(dn)) for dn in datanames]
 
-    one_thru_three = 1
-    three_thru_eight = 1
-    nine_thru_X = 1
+    one_thru_three = 0
+    four_thru_eight = 0
+    nine_thru_thirteen = 0
+    fourteen_thru_X =1
 
     for datapath, outdir in zip(datapaths, outdirs):
         print(datapath)
@@ -633,7 +710,7 @@ if __name__=="__main__":
             radius_insolation_diagram(df, outdir=outdir, xlim=(0.11, 2.5e5),
                                       ylim=(0.45,30))
 
-        if three_thru_eight:
+        if four_thru_eight:
 
             number_of_detections_vs_plradius_barchart(
                 df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
@@ -663,7 +740,7 @@ if __name__=="__main__":
                 ylim=(0,1000), outstr='justmultis_', outdir=outdir,
                 yscale='linear')
 
-        if nine_thru_X:
+        if nine_thru_thirteen:
 
             number_of_detections_vs_insolation_barchart(
                 df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
@@ -688,3 +765,9 @@ if __name__=="__main__":
             number_of_detections_vs_plradius_barchart(
                 df, txt='SNR>10 and $N_{\mathrm{tra,pri}}$ is 1 or 2, and $N_{\mathrm{tra,ext}} >= 3$',
                 ylim=(0,1000), outstr='oneortwotraonly_', yscale='linear', outdir=outdir)
+
+        if fourteen_thru_X:
+
+            number_of_detections_vs_period_barchart(
+                df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
+                ylim=(1,5000), outdir=outdir, yscale='log')

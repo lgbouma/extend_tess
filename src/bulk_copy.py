@@ -18,7 +18,7 @@ def main():
         else:
             for fpath in fpaths:
                 newname = fpath.split('/')[-1].rstrip('.png')
-                newname += fpath.split('/')[-2]
+                newname += '_'+fpath.split('/')[-2]
                 newname += '.png'
                 outpath = os.path.join(savdir,newname)
                 copyfile(fpath, outpath)
