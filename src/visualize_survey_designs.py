@@ -248,7 +248,8 @@ def only_extended_only_primary():
                  'idea_4_ecliptic_and_C3PO_quarters.csv',
                  'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1.csv',
                  'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv',
-                 'primary_mission.csv'
+                 'primary_mission.csv',
+                 'idea_7_eclc3po-8orbitq.csv'
                 ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
@@ -257,7 +258,8 @@ def only_extended_only_primary():
                    'idea_4_ecliptic_and_C3PO_quarters_eclmap.png',
                    'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_eclmap.png',
                    'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png',
-                   'primary_mission_eclmap.png'
+                   'primary_mission_eclmap.png',
+                   'idea_7_eclc3po-8orbitq_eclmap.png'
                   ]
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
@@ -266,7 +268,8 @@ def only_extended_only_primary():
                     'idea_4_ecliptic_and_C3PO_quarters_icrsmap.png',
                     'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_icrsmap.png',
                     'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
-                    'primary_mission_icrsmap.png'
+                    'primary_mission_icrsmap.png',
+                    'idea_7_eclc3po-8orbitq_icrsmap.png'
                    ]
 
     titles = ['idea 1 N(6)->ecliptic(10)->S(26)->N(remain)',
@@ -275,7 +278,8 @@ def only_extended_only_primary():
               'idea 4 ecl(10) + alternate C3PO 6 orbit quarters',
               'idea 5 ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
               'idea 6 ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
-              'primary mission'
+              'primary mission',
+              'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
@@ -328,7 +332,8 @@ def merged_with_primary():
                  'idea_3_SNNSN_hemi.csv',
                  'idea_4_ecliptic_and_C3PO_quarters.csv',
                  'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1.csv',
-                 'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv'
+                 'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv',
+                 'idea_7_eclc3po-8orbitq.csv'
                 ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
@@ -336,7 +341,8 @@ def merged_with_primary():
                    'idea_3_SNNSN_eclmap.png',
                    'idea_4_ecliptic_and_C3PO_quarters_eclmap.png',
                    'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_eclmap.png',
-                   'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png'
+                   'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png',
+                   'idea_7_eclc3po-8orbitq_eclmap.png'
                   ]
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
@@ -345,6 +351,7 @@ def merged_with_primary():
                     'idea_4_ecliptic_and_C3PO_quarters_icrsmap.png',
                     'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_icrsmap.png',
                     'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
+                    'idea_7_eclc3po-8orbitq_icrsmap.png'
                    ]
 
     titles = ['idea 1 SN->N(6)->ecliptic(10)->S(26)->N(remain)',
@@ -353,6 +360,7 @@ def merged_with_primary():
               'idea 4 SN->ecl(10) + alternate C3PO 6 orbit quarters',
               'idea 5 SN->ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
               'idea 6 SN->ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
+              'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters',
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
