@@ -154,7 +154,8 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
 
 
-def get_n_observations(dirnfile, outpath, n_stars, merged=False):
+def get_n_observations(dirnfile, outpath, n_stars, merged=False,
+                       is_deming=False):
 
     np.random.seed(42)
 
@@ -231,7 +232,7 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False):
     print('saved {}'.format(outpath))
 
 
-def only_extended_only_primary():
+def only_extended_only_primary(is_deming=False):
     """
     make plots for each extended mission, and the primary mission.
     (no merging)
@@ -250,7 +251,8 @@ def only_extended_only_primary():
                  'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv',
                  'primary_mission.csv',
                  'idea_7_eclc3po-8orbitq.csv',
-                 'idea_8_SNEsparse.csv'
+                 'idea_8_SNEsparse.csv',
+                 'idea_9_SNEshifted.csv'
                 ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
@@ -261,7 +263,8 @@ def only_extended_only_primary():
                    'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png',
                    'primary_mission_eclmap.png',
                    'idea_7_eclc3po-8orbitq_eclmap.png',
-                   'idea_8_SNEsparse_eclmap.png'
+                   'idea_8_SNEsparse_eclmap.png',
+                   'idea_9_SNEshifted_eclmap.png'
                   ]
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
@@ -272,7 +275,8 @@ def only_extended_only_primary():
                     'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
                     'primary_mission_icrsmap.png',
                     'idea_7_eclc3po-8orbitq_icrsmap.png',
-                    'idea_8_SNEsparse_icrsmap.png'
+                    'idea_8_SNEsparse_icrsmap.png',
+                    'idea_9_SNEshifted_icrsmap.png'
                    ]
 
     titles = ['idea 1 N(6)->ecliptic(10)->S(26)->N(remain)',
@@ -283,7 +287,8 @@ def only_extended_only_primary():
               'idea 6 ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
               'primary mission',
               'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters',
-              'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18'
+              'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18',
+              'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
@@ -292,10 +297,13 @@ def only_extended_only_primary():
         range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
 
         obsdpath = dirnfile.replace('.csv', '_coords_observed.csv')
+        if is_deming:
+            obsdpath = dirnfile.replace('.csv', '_coords_observed_for_drake.csv')
 
         if not os.path.exists(obsdpath):
             # takes about 1 minute per strategy
-            get_n_observations(dirnfile, obsdpath, int(2e5))
+            get_n_observations(dirnfile, obsdpath, int(2e5),
+                               is_deming=is_deming)
 
         df = pd.read_csv(obsdpath, sep=';')
         df['obs_duration'] = orbit_duration_days*df['n_observations']
@@ -338,7 +346,8 @@ def merged_with_primary():
                  'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1.csv',
                  'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv',
                  'idea_7_eclc3po-8orbitq.csv',
-                 'idea_8_SNEsparse.csv'
+                 'idea_8_SNEsparse.csv',
+                 'idea_9_SNEshifted.csv'
                 ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
@@ -348,7 +357,8 @@ def merged_with_primary():
                    'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_eclmap.png',
                    'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png',
                    'idea_7_eclc3po-8orbitq_eclmap.png',
-                   'idea_8_SNEsparse_eclmap.png'
+                   'idea_8_SNEsparse_eclmap.png',
+                   'idea_9_SNEshifted_eclmap.png'
                   ]
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
@@ -358,7 +368,8 @@ def merged_with_primary():
                     'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_icrsmap.png',
                     'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
                     'idea_7_eclc3po-8orbitq_icrsmap.png',
-                    'idea_8_SNEsparse_icrsmap.png'
+                    'idea_8_SNEsparse_icrsmap.png',
+                    'idea_9_SNEshifted_icrsmap.png'
                    ]
 
     titles = ['idea 1 SN->N(6)->ecliptic(10)->S(26)->N(remain)',
@@ -368,7 +379,8 @@ def merged_with_primary():
               'idea 5 SN->ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
               'idea 6 SN->ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
               'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters',
-              'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18'
+              'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18',
+              'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
@@ -411,8 +423,10 @@ if __name__=="__main__":
     separated=1  # make plots for each extended mission, and the primary mission.
     merged=1     # make plots for merged primary + extended mission.
 
+    is_deming=0  # draws points from uniform grid, for drake.
+
     if separated:
-        only_extended_only_primary()
+        only_extended_only_primary(is_deming=is_deming)
 
     if merged:
         merged_with_primary()
