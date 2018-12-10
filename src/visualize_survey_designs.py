@@ -55,6 +55,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
     x = _shift_lon_get_x(lon, origin)
 
+    plt.close('all')
     fig = plt.figure(figsize=(6, 4.5))
     ax = fig.add_subplot(111, projection=projection, facecolor='White')
 
@@ -155,7 +156,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
 
 def get_n_observations(dirnfile, outpath, n_stars, merged=False,
-                       is_deming=False):
+                       is_deming=False, withgaps=True):
 
     np.random.seed(42)
 
@@ -171,6 +172,17 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
 
     theta = (2*np.pi*rand0 * u.rad).to(u.deg).value
     phi = (np.arccos(2*rand1 - 1) * u.rad).to(u.deg).value - 90
+
+    if is_deming:
+        x, y = np.meshgrid(
+            np.arange(-90,91,1),
+            np.arange(0,361,1),
+            indexing='ij'
+        )
+        # dumb
+        theta = np.array(y.flatten())
+        phi = np.array(x.flatten())
+        withgaps=False
 
     ras = theta*u.deg
     decs = phi*u.deg
@@ -218,7 +230,7 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
         print(row['start'])
         cam_direction = row['camdirection']
 
-        onchip = gcgss(coords, cam_direction, verbose=False)
+        onchip = gcgss(coords, cam_direction, verbose=False, withgaps=withgaps)
 
         n_observations += onchip
 
@@ -299,6 +311,11 @@ def only_extended_only_primary(is_deming=False):
         obsdpath = dirnfile.replace('.csv', '_coords_observed.csv')
         if is_deming:
             obsdpath = dirnfile.replace('.csv', '_coords_observed_for_drake.csv')
+            if ix != 9:
+                continue
+
+            eclsavname = eclsavname.replace('.png','_for_drake.png')
+            icrssavname = icrssavname.replace('.png','_for_drake.png')
 
         if not os.path.exists(obsdpath):
             # takes about 1 minute per strategy
@@ -423,10 +440,13 @@ if __name__=="__main__":
     separated=1  # make plots for each extended mission, and the primary mission.
     merged=1     # make plots for merged primary + extended mission.
 
-    is_deming=0  # draws points from uniform grid, for drake.
+    is_deming=1  # draws points from uniform grid, for drake.
 
     if separated:
         only_extended_only_primary(is_deming=is_deming)
 
     if merged:
-        merged_with_primary()
+        if not is_deming:
+            merged_with_primary()
+        else:
+            print('dont merge if is deming')
