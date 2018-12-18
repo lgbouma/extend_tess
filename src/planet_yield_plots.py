@@ -493,10 +493,12 @@ def number_of_detections_vs_insolation_barchart(df, txt=None, ylim=None,
 
         outstr = 'justmultis_'
 
-    counts_ext = np.histogram(df.loc[after_ext, 'insol'],
+    finsol = np.isfinite(df['insol'])
+
+    counts_ext = np.histogram(df.loc[after_ext & finsol, 'insol'],
                               bins=[0,0.5,2,1e6])
 
-    counts_pri = np.histogram(df.loc[in_pri, 'insol'],
+    counts_pri = np.histogram(df.loc[in_pri & finsol, 'insol'],
                               bins=[0,0.5,2,1e6])
 
     tl = ['$<0.5$', '$0.5-2$', '$>2$']
@@ -561,10 +563,12 @@ def number_of_detections_vs_sptype_barchart(df, txt=None, ylim=None,
 
         outstr = 'justmultis_'
 
-    counts_ext = np.histogram(df.loc[after_ext, 'TEFF'],
+    fteff = np.isfinite(df['TEFF'])
+
+    counts_ext = np.histogram(df.loc[after_ext & fteff, 'TEFF'],
                               bins=[2285,3905,5310,5980,7330.,10050])
 
-    counts_pri = np.histogram(df.loc[in_pri, 'TEFF'],
+    counts_pri = np.histogram(df.loc[in_pri & fteff, 'TEFF'],
                               bins=[2285,3905,5310,5980,7330.,10050])
 
     tl = ['M', 'K', 'G', 'F', 'A']
@@ -681,17 +685,17 @@ def new_planets_newsky_or_snrboost_vs_plradius(df, txt=None, ylim=None,
 
 if __name__=="__main__":
 
-    names = ['idea_1_SNE','idea_2_SNSNS','idea_3_SNNSN','idea_4_EC3PO']
+    names = ['idea_1_SNE-v4']
     outdirs = [os.path.join('../results/planet_yield_plots/',dirname)
                for dirname in names]
     datanames = [n.split('_')[-1] for n in names]
     datapaths = [os.path.join(
-        '../data/tommyb', 'detected_planet_catalog_{:s}-v3.csv.bz2'.
+        '../data/tommyb', 'detected_planet_catalog_{:s}.csv.bz2'.
         format(dn)) for dn in datanames]
 
-    one_thru_three = 0
-    four_thru_eight = 0
-    nine_thru_thirteen = 0
+    one_thru_three = 1
+    four_thru_eight = 1
+    nine_thru_thirteen = 1
     fourteen_thru_X =1
 
     for datapath, outdir in zip(datapaths, outdirs):
