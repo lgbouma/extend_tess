@@ -28,7 +28,7 @@ def _shift_lon_get_x(lon, origin):
 def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
              projection='mollweide',savdir='../results/',savname='mwd_0.pdf',
              overplot_galactic_plane=True, is_tess=False, is_radec=None,
-             cbarbounds=None):
+             cbarbounds=None, for_proposal=False):
 
     '''
     args, kwargs:
@@ -56,17 +56,28 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
     x = _shift_lon_get_x(lon, origin)
 
     plt.close('all')
-    fig = plt.figure(figsize=(6, 4.5))
+    fig = plt.figure(figsize=(6, 4.5)) # figszie doesn't do anything...
     ax = fig.add_subplot(111, projection=projection, facecolor='White')
 
     if is_tess:
         # set up colormap
         import seaborn as sns
-        #rgbs = sns.color_palette("cubehelix_r", n_colors=17)
-        rgbs = sns.color_palette('Paired', n_colors=12, desat=0.9)
-        #rgbs = sns.color_palette('Set2', n_colors=12)
-        #rgbs = sns.color_palette('viridis', n_colors=12)
-        cmap = mpl.colors.ListedColormap(rgbs)
+
+        if for_proposal:
+            # rgbs = sns.diverging_palette(255, 133, l=60, n=12, center="dark")
+            # rgbs = sns.diverging_palette(230, 15, s=99, l=70, n=13,
+            #                              center="dark")
+            colors = ["#e7d914", "#ceb128", "#b58a3d", "#866c50", "#515263",
+                      "#1b3876", "#002680", "#001d80", "#001480", "#000c80",
+                      "#000880", "#000480", "#000080"]
+
+            from matplotlib.colors import LinearSegmentedColormap
+            cmap = LinearSegmentedColormap.from_list(
+                'my_cmap', colors, N=len(colors))
+        else:
+            rgbs = sns.color_palette('Paired', n_colors=12, desat=0.9)
+            cmap = mpl.colors.ListedColormap(rgbs)
+
         if isinstance(cbarbounds,np.ndarray):
             bounds=cbarbounds
         else:
@@ -87,7 +98,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         ylabels = list(map(str,np.round(27.32*(np.arange(1,13)),1)))
         ylabels[-1] = '$\geq \! 328$'
         cbar.ax.set_yticklabels(ylabels, fontsize='x-small')
-        cbar.set_label('days observed', rotation=270, labelpad=10)
+        cbar.set_label('Days observed', rotation=270, labelpad=10)
         cbar.ax.tick_params(direction='in')
 
     else:
@@ -129,26 +140,34 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         ##########
 
 
-    tick_labels = np.array([150, 120, 90, 60, 30, 0, 330, 300, 270, 240, 210])
-    tick_labels = np.remainder(tick_labels+360+origin,360)
-    ax.set_xticklabels(tick_labels, fontsize='x-small', zorder=5)
-    ax.set_yticklabels(np.arange(-75,75+15,15), fontsize='x-small')
+    xticklabels = np.array([150, 120, 90, 60, 30, 0, 330, 300, 270, 240, 210])
+    xticklabels = np.remainder(xticklabels+360+origin,360)
+    xticklabels = np.array([str(xtl)+'$\!$$^\circ$' for xtl in xticklabels])
+    ax.set_xticklabels(xticklabels, fontsize='x-small', zorder=5)
 
-    ax.set_title(title, y=1.05, fontsize='small')
+    yticklabels = np.arange(-75,75+15,15)
+    yticklabels = np.array([str(ytl)+'$\!$$^\circ$' for ytl in yticklabels])
+    ax.set_yticklabels(yticklabels, fontsize='x-small')
+
+    if not for_proposal:
+        ax.set_title(title, y=1.05, fontsize='small')
+
     if is_radec:
-        ax.set_xlabel('ra', fontsize='x-small')
-        ax.set_ylabel('dec', fontsize='x-small')
+        ax.set_xlabel('Right ascension', fontsize='x-small')
+        ax.set_ylabel('Declination', fontsize='x-small')
     else:
-        ax.set_xlabel('ecl lon', fontsize='x-small')
-        ax.set_ylabel('ecl lat', fontsize='x-small')
+        ax.set_xlabel('Ecliptic longitude', fontsize='x-small')
+        ax.set_ylabel('Ecliptic latitude', fontsize='x-small')
 
     #ax.set_axisbelow(True)
     ax.grid(color='lightgray', linestyle='--', linewidth=0.5, zorder=-3,
             alpha=0.15)
 
-    ax.text(0.99,0.01,'github.com/lgbouma/extend_tess',
-            fontsize='4',transform=ax.transAxes,
-            ha='right',va='bottom')
+    if not for_proposal:
+        ax.text(0.99,0.01,'github.com/lgbouma/extend_tess',
+                fontsize='4',transform=ax.transAxes,
+                ha='right',va='bottom')
+
     fig.tight_layout()
     fig.savefig(os.path.join(savdir,savname),dpi=350, bbox_inches='tight')
     print('saved {}'.format(os.path.join(savdir,savname)))
@@ -244,7 +263,7 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
     print('saved {}'.format(outpath))
 
 
-def only_extended_only_primary(is_deming=False):
+def only_extended_only_primary(is_deming=False, for_proposal=False):
     """
     make plots for each extended mission, and the primary mission.
     (no merging)
@@ -308,7 +327,19 @@ def only_extended_only_primary(is_deming=False):
     for ix, dirnfile, eclsavname, icrssavname, title in zip(
         range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
 
-        obsdpath = dirnfile.replace('.csv', '_coords_observed.csv')
+        size=0.8
+
+        if for_proposal:
+            if ix not in [6,9]:
+                continue
+            eclsavname = eclsavname.replace('.png','_forproposal.png')
+            icrssavname = icrssavname.replace('.png','_forproposal.png')
+            size=0.95
+
+        obsdstr = '' if not for_proposal else '_forproposal'
+        obsdpath = dirnfile.replace(
+            '.csv', '_coords_observed{}.csv'.format(obsdstr))
+
         if is_deming:
             obsdpath = dirnfile.replace('.csv', '_coords_observed_for_drake.csv')
             if ix != 9:
@@ -319,7 +350,11 @@ def only_extended_only_primary(is_deming=False):
 
         if not os.path.exists(obsdpath):
             # takes about 1 minute per strategy
-            get_n_observations(dirnfile, obsdpath, int(2e5),
+            if for_proposal:
+                npts = 4e5
+            else:
+                npts = 2e5
+            get_n_observations(dirnfile, obsdpath, int(npts),
                                is_deming=is_deming)
 
         df = pd.read_csv(obsdpath, sep=';')
@@ -330,23 +365,25 @@ def only_extended_only_primary(is_deming=False):
         plot_mwd(nparr(df['elon'])[sel_durn],
                  nparr(df['elat'])[sel_durn],
                  nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=.8, title=title,
+                 origin=0, size=size, title=title,
                  projection='mollweide', savdir=savdir,
                  savname=eclsavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=False,
-                 cbarbounds=cbarbounds)
+                 cbarbounds=cbarbounds,
+                 for_proposal=for_proposal)
 
         plot_mwd(nparr(df['ra'])[sel_durn],
                  nparr(df['dec'])[sel_durn],
                  nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=.8, title=title,
+                 origin=0, size=size, title=title,
                  projection='mollweide', savdir=savdir,
                  savname=icrssavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
-                 cbarbounds=cbarbounds)
+                 cbarbounds=cbarbounds,
+                 for_proposal=for_proposal)
 
 
-def merged_with_primary():
+def merged_with_primary(for_proposal=False):
     """
     make plots for each extended mission, merged with the primary mission.
     """
@@ -405,11 +442,25 @@ def merged_with_primary():
     for ix, dirnfile, eclsavname, icrssavname, title in zip(
         range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
 
-        obsdpath = dirnfile.replace('.csv', '_coords_observed_merged.csv')
+        size=0.8
+        if for_proposal:
+            if ix != 8:
+                continue
+            eclsavname = eclsavname.replace('.png','_forproposal.png')
+            icrssavname = icrssavname.replace('.png','_forproposal.png')
+            size=0.95
+
+        obsdstr = '' if not for_proposal else '_forproposal'
+        obsdpath = dirnfile.replace(
+            '.csv', '_coords_observed_merged{}.csv'.format(obsdstr))
 
         if not os.path.exists(obsdpath):
             # takes about 1 minute per strategy
-            get_n_observations(dirnfile, obsdpath, int(2e5), merged=True)
+            if for_proposal:
+                npts = 4e5
+            else:
+                npts = 2e5
+            get_n_observations(dirnfile, obsdpath, int(npts), merged=True)
 
         df = pd.read_csv(obsdpath, sep=';')
         df['obs_duration'] = orbit_duration_days*df['n_observations']
@@ -419,34 +470,41 @@ def merged_with_primary():
         plot_mwd(nparr(df['elon'])[sel_durn],
                  nparr(df['elat'])[sel_durn],
                  nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=.8, title=title,
+                 origin=0, size=size, title=title,
                  projection='mollweide', savdir=savdir,
                  savname=eclsavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=False,
-                 cbarbounds=cbarbounds)
+                 cbarbounds=cbarbounds,
+                 for_proposal=for_proposal)
 
         plot_mwd(nparr(df['ra'])[sel_durn],
                  nparr(df['dec'])[sel_durn],
                  nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=.8, title=title,
+                 origin=0, size=size, title=title,
                  projection='mollweide', savdir=savdir,
                  savname=icrssavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
-                 cbarbounds=cbarbounds)
+                 cbarbounds=cbarbounds,
+                 for_proposal=for_proposal)
 
 
 if __name__=="__main__":
 
-    separated=1  # make plots for each extended mission, and the primary mission.
-    merged=1     # make plots for merged primary + extended mission.
+    # BEGIN OPTIONS
 
-    is_deming=1  # draws points from uniform grid, for drake.
+    separated=1     # make plots for each extended mission, and the primary mission.
+    merged=1        # make plots for merged primary + extended mission.
+    is_deming=0     # draws points from uniform grid, for drake.
+    for_proposal=1  # true to activate options only for the proposal
+
+    # END OPTIONS
 
     if separated:
-        only_extended_only_primary(is_deming=is_deming)
+        only_extended_only_primary(is_deming=is_deming,
+                                   for_proposal=for_proposal)
 
     if merged:
         if not is_deming:
-            merged_with_primary()
+            merged_with_primary(for_proposal=for_proposal)
         else:
             print('dont merge if is deming')
