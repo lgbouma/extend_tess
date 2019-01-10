@@ -6,3 +6,4 @@ results/*csv
 results/ingress_durations/TIC72_ingress_snr.csv
 doc/20181116_barclay_meeting.txt
 nominal_pointing_strategies/
+*TESS_SReview*pdf
