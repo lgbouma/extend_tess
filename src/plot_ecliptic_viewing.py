@@ -177,7 +177,7 @@ def plot_efficiency_vs_time_for_sectornum(df, sectornum=1):
     ax.set_title('orbits {} and {} (sector {}), ecliptic dec=0'.
                  format(onum0, onum1, sectornum))
 
-    outdir = '../results/ecliptic_timing/'
+    outdir = '../results/ecliptic_timing/efficiency_vs_time_by_sector/'
     outpath = os.path.join(
         outdir,'efficiency_vs_time_sector{}.png'.format(str(sectornum).zfill(3))
     )
@@ -226,7 +226,7 @@ def plot_avgd_efficiency_vs_orbit_number_plot(df):
 
     # make smoothed line...
     from scipy.signal import savgol_filter
-    smooth_efficiency = savgol_filter(em_efficiency, 15, 2, mode='mirror')
+    smooth_efficiency = savgol_filter(em_efficiency, 13, 3, mode='mirror')
 
     ax.plot(orbitnums, smooth_efficiency, lw=1, c='gray', zorder=2, alpha=0.5)
 
@@ -291,8 +291,6 @@ def plot_avgd_efficiency_vs_orbit_number_plot(df):
     print('made {}'.format(outpath))
 
 
-    #FIXME
-
 if __name__ == "__main__":
 
     datadir = '../data/vanderspek_ecliptic/'
@@ -302,7 +300,7 @@ if __name__ == "__main__":
 
     df = make_timeseries_df(datadir)
 
-    outdir = '../results/ecliptic_timing/'
+    outdir = '../results/ecliptic_timing/efficiency_vs_time_by_sector/'
     for sectornum in range(1,58):
         outpath = os.path.join(
             outdir,'efficiency_vs_time_sector{}.png'.format(str(sectornum).zfill(3))
