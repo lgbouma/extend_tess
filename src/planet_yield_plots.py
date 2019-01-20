@@ -430,7 +430,7 @@ def number_of_detections_vs_period_barchart(df, txt=None, ylim=None,
 
     eoutstr='' if not forproposal else '_forproposal'
     savpath = os.path.join(
-        outdir,outstr+'number_of_detections_vs_plradius_barchart{}.png'.
+        outdir,outstr+'number_of_detections_vs_period_barchart{}.png'.
         format(eoutstr))
     fig.savefig(savpath, bbox_inches='tight', dpi=400)
     print('made {}'.format(savpath))
@@ -782,9 +782,9 @@ if __name__=="__main__":
         format(dn)) for dn in datanames]
 
     one_thru_three = 0
-    four_thru_eight = 0
+    four_thru_eight = 1
     nine_thru_thirteen = 0
-    fourteen_thru_X =1
+    fourteen_thru_X =0
 
     for datapath, outdir in zip(datapaths, outdirs):
         print(datapath)
@@ -811,7 +811,7 @@ if __name__=="__main__":
                 ylim=(1,3800), outdir=outdir)
             number_of_detections_vs_plradius_barchart(
                 df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
-                ylim=(0.8,3), outdir=outdir, forproposal=True)
+                ylim=(0.,3.3), outdir=outdir, forproposal=True)
 
             Tmagcut=10
             number_of_detections_vs_plradius_barchart_Tmaglt(
