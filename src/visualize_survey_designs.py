@@ -16,6 +16,7 @@ from astropy.coordinates import SkyCoord
 from numpy import array as nparr
 
 import os
+import json
 
 def _shift_lon_get_x(lon, origin):
     x = np.array(np.remainder(lon+360-origin,360)) # shift lon values
@@ -28,7 +29,7 @@ def _shift_lon_get_x(lon, origin):
 def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
              projection='mollweide',savdir='../results/',savname='mwd_0.pdf',
              overplot_galactic_plane=True, is_tess=False, is_radec=None,
-             cbarbounds=None, for_proposal=False):
+             cbarbounds=None, for_proposal=False, overplot_k2_fields=False):
 
     '''
     args, kwargs:
@@ -67,9 +68,16 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
             # rgbs = sns.diverging_palette(255, 133, l=60, n=12, center="dark")
             # rgbs = sns.diverging_palette(230, 15, s=99, l=70, n=13,
             #                              center="dark")
-            colors = ["#e7d914", "#ceb128", "#b58a3d", "#866c50", "#515263",
-                      "#1b3876", "#002680", "#001d80", "#001480", "#000c80",
-                      "#000880", "#000480", "#000080"]
+
+            # FIXME # 13-color (no "0" stars)
+            # colors = ["#e7d914", "#ceb128", "#b58a3d", "#866c50", "#515263",
+            #           "#1b3876", "#002680", "#001d80", "#001480", "#000c80",
+            #           "#000880", "#000480", "#000080"]
+
+            # 14-color
+            colors = ["#ffffff", "#e7d914", "#ceb128", "#b58a3d", "#866c50",
+                      "#515263", "#1b3876", "#002680", "#001d80", "#001480",
+                      "#000c80", "#000880", "#000480", "#000080"]
 
             from matplotlib.colors import LinearSegmentedColormap
             cmap = LinearSegmentedColormap.from_list(
@@ -86,16 +94,34 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         norm = mpl.colors.BoundaryNorm(bounds, cmap.N)
 
         # plot the stars
-        cax = ax.scatter(np.radians(x),np.radians(dec), c=color_val, s=size,
-                         lw=0, zorder=0, cmap=cmap, norm=norm, rasterized=True)
+        cax = ax.scatter(np.radians(x[::100]),np.radians(dec[::100]),
+                         c=color_val[::100],
+                         s=0, lw=0, zorder=2, cmap=cmap, norm=norm,
+                         rasterized=True)
+
+        #FIXME
+        sel = color_val > 0
+        _ = ax.scatter(np.radians(x[sel]),np.radians(dec[sel]),
+                       c=color_val[sel], s=size,
+                       lw=0, zorder=-1, cmap=cmap, norm=norm,
+                       marker='o',
+                       rasterized=True)
+
+        _ = ax.scatter(np.radians(x[~sel]),np.radians(dec[~sel]),
+                       c=color_val[~sel],
+                       s=size/4, lw=0, zorder=0, cmap=cmap, norm=norm,
+                       marker='s',
+                       rasterized=True)
 
         # set up colorbar
         cbar = fig.colorbar(cax, cmap=cmap, norm=norm, boundaries=bounds,
                             fraction=0.025, pad=0.03,
-                            ticks=27.32*(np.arange(13)+1),
+                            #ticks=27.32*(np.arange(13)+1), #FIXME
+                            ticks=27.32*(np.arange(-1,13)+1),
                             orientation='vertical')
 
-        ylabels = list(map(str,np.round(27.32*(np.arange(1,13)),1)))
+        # ylabels = list(map(str,np.round(27.32*(np.arange(1,13)),1))) #FIXME
+        ylabels = list(map(str,np.round(27.32*(np.arange(0,13)),1)))
         ylabels[-1] = '$\geq \! 328$'
         cbar.ax.set_yticklabels(ylabels, fontsize='x-small')
         cbar.set_label('Days observed', rotation=270, labelpad=10)
@@ -111,7 +137,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         ##########
         # make many points, and also label the galactic center. ideally you
         # will never need to follow these coordinate transformations.
-        glons = np.arange(0,360)
+        glons = np.arange(0,360,0.2)
         glats = np.zeros_like(glons)
         coords = SkyCoord(glons*u.degree, glats*u.degree, frame='galactic')
         gplane_ra, gplane_dec = coords.icrs.ra.value, coords.icrs.dec.value
@@ -123,7 +149,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
             gplane_x = _shift_lon_get_x(gplane_elon, origin)
             gplane_dec = gplane_elat
         ax.scatter(np.radians(gplane_x),np.radians(gplane_dec),
-                   c='lightgray', s=0.3, zorder=3)
+                   c='lightgray', s=0.2, zorder=3, rasterized=True)
         gcenter = SkyCoord('17h45m40.04s', '-29d00m28.1s', frame='icrs')
         gcenter_ra, gcenter_dec = gcenter.icrs.ra.value, gcenter.icrs.dec.value
         gcenter_elon = gcenter.barycentrictrueecliptic.lon.value
@@ -138,6 +164,127 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         ax.text(np.radians(gcenter_x), np.radians(gcenter_dec), 'GC',
                 fontsize='x-small', ha='left', va='top')
         ##########
+
+    if overplot_k2_fields:
+
+        # do kepler
+        kep = pd.read_csv('../data/kepler_field_footprint.csv')
+        # we want the corner points, not the mid-points
+        is_mipoint = ((kep['row']==535) & (kep['column']==550))
+        kep = kep[~is_mipoint]
+
+        kep_coord = SkyCoord(kep['ra']*u.deg, kep['dec']*u.deg, frame='icrs')
+        kep_elon = kep_coord.barycentrictrueecliptic.lon.value
+        kep_elat = kep_coord.barycentrictrueecliptic.lat.value
+        kep['elon'] = kep_elon
+        kep['elat'] = kep_elat
+
+        kep_d = {}
+        for module in np.unique(kep['module']):
+            kep_d[module] = {}
+            for output in np.unique(kep['output']):
+                kep_d[module][output] = {}
+                sel = (kep['module']==module) & (kep['output']==output)
+
+                _ra = list(kep.ix[sel]['ra'])
+                _dec = list(kep.ix[sel]['dec'])
+                _elon = list(kep.ix[sel]['elon'])
+                _elat = list(kep.ix[sel]['elat'])
+
+                _ra = [_ra[0], _ra[1], _ra[3], _ra[2] ]
+                _dec =  [_dec[0], _dec[1], _dec[3], _dec[2] ]
+                _elon = [_elon[0], _elon[1], _elon[3], _elon[2] ]
+                _elat = [_elat[0], _elat[1], _elat[3], _elat[2] ]
+
+                _ra.append(_ra[0])
+                _dec.append(_dec[0])
+                _elon.append(_elon[0])
+                _elat.append(_elat[0])
+
+                kep_d[module][output]['corners_ra'] = _ra
+                kep_d[module][output]['corners_dec'] = _dec
+                kep_d[module][output]['corners_elon'] = _elon
+                kep_d[module][output]['corners_elat'] = _elat
+
+        # finally, make the plot!
+        for mod in np.sort(list(kep_d.keys())):
+            for op in np.sort(list(kep_d[mod].keys())):
+                print(mod, op)
+
+                this = kep_d[mod][op]
+
+                ra = nparr(this['corners_ra'])
+                dec = nparr(this['corners_dec'])
+                elon = nparr(this['corners_elon'])
+                elat = nparr(this['corners_elat'])
+
+                if is_radec:
+                    ch_x = _shift_lon_get_x(np.array(ra), origin)
+                    ch_y = np.array(dec)
+                else:
+                    ch_x = _shift_lon_get_x(np.array(elon), origin)
+                    ch_y = np.array(elat)
+
+                # draw the outline of the fields -- same as fill.
+                #ax.plot(np.radians(ch_x), np.radians(ch_y), c='gray',
+                #        alpha=0.3, lw=0.15, rasterized=True)
+
+                # fill in the fields
+                ax.fill(np.radians(ch_x), np.radians(ch_y), c='lightgray',
+                        alpha=0.95, lw=0, rasterized=True)
+
+                # label them (NOTE: skipping)
+                # txt_x, txt_y = np.mean(ch_x), np.mean(ch_y)
+                # if mod == 13 and output == 2:
+                #     ax.text(np.radians(txt_x), np.radians(txt_y),
+                #             'Kepler', fontsize=4, va='center',
+                #             ha='center', color='gray', zorder=10)
+
+        # done kepler!
+        # do k2
+        footprint_dictionary = json.load(open("../data/k2-footprint.json"))
+
+        for cn in np.sort(list(footprint_dictionary.keys())):
+            if cn in ['c1','c10'] and is_radec:
+                continue
+            if cn in ['c1','c10'] and not is_radec:
+                continue
+            print(cn)
+
+            channel_ids = footprint_dictionary[cn]["channels"].keys()
+
+            for channel_id in channel_ids:
+                channel = footprint_dictionary[cn]["channels"][channel_id]
+                ra = channel["corners_ra"] + channel["corners_ra"][:1]
+                dec = channel["corners_dec"] + channel["corners_dec"][:1]
+
+                if is_radec:
+                    ch_x = _shift_lon_get_x(np.array(ra), origin)
+                    ch_y = np.array(dec)
+                else:
+                    ch_coord = SkyCoord(ra*u.deg, dec*u.deg, frame='icrs')
+                    ch_elon = ch_coord.barycentrictrueecliptic.lon.value
+                    ch_elat = ch_coord.barycentrictrueecliptic.lat.value
+                    ch_x = _shift_lon_get_x(np.array(ch_elon), origin)
+                    ch_y = np.array(ch_elat)
+
+                # draw the outline of the fields -- same as fill
+                # ax.plot(np.radians(ch_x), np.radians(ch_y), c='gray',
+                #         alpha=0.3, lw=0.15, rasterized=True)
+
+                # fill in the fields
+                ax.fill(np.radians(ch_x), np.radians(ch_y), c='lightgray',
+                        alpha=.95, lw=0, rasterized=True)
+
+                # label them (NOTE: skipping)
+                # txt_x, txt_y = np.mean(ch_x), np.mean(ch_y)
+                # if channel_id == '41':
+                #     ax.text(np.radians(txt_x), np.radians(txt_y),
+                #             cn.lstrip('c'), fontsize=4, va='center',
+                #             ha='center', color='gray')
+
+        # done k2!
+
 
 
     xticklabels = np.array([150, 120, 90, 60, 30, 0, 330, 300, 270, 240, 210])
@@ -263,7 +410,8 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
     print('saved {}'.format(outpath))
 
 
-def only_extended_only_primary(is_deming=False, for_proposal=False):
+def only_extended_only_primary(is_deming=False, for_proposal=False,
+                               overplot_k2_fields=False):
     """
     make plots for each extended mission, and the primary mission.
     (no merging)
@@ -334,7 +482,11 @@ def only_extended_only_primary(is_deming=False, for_proposal=False):
                 continue
             eclsavname = eclsavname.replace('.png','_forproposal.png')
             icrssavname = icrssavname.replace('.png','_forproposal.png')
-            size=0.95
+            size=0.8
+
+        if overplot_k2_fields:
+            eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
+            icrssavname = icrssavname.replace('.png','_forproposal_k2overplot.png')
 
         obsdstr = '' if not for_proposal else '_forproposal'
         obsdpath = dirnfile.replace(
@@ -351,7 +503,7 @@ def only_extended_only_primary(is_deming=False, for_proposal=False):
         if not os.path.exists(obsdpath):
             # takes about 1 minute per strategy
             if for_proposal:
-                npts = 4e5
+                npts = 6e5
             else:
                 npts = 2e5
             get_n_observations(dirnfile, obsdpath, int(npts),
@@ -360,8 +512,14 @@ def only_extended_only_primary(is_deming=False, for_proposal=False):
         df = pd.read_csv(obsdpath, sep=';')
         df['obs_duration'] = orbit_duration_days*df['n_observations']
 
-        cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
-        sel_durn = (nparr(df['obs_duration']) > 0)
+        #FIXME
+        # cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
+        # sel_durn = (nparr(df['obs_duration']) > 0)
+        #FIXME
+
+        cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
+        sel_durn = (nparr(df['obs_duration']) >= 0)
+
         plot_mwd(nparr(df['elon'])[sel_durn],
                  nparr(df['elat'])[sel_durn],
                  nparr(df['obs_duration'])[sel_durn],
@@ -370,7 +528,8 @@ def only_extended_only_primary(is_deming=False, for_proposal=False):
                  savname=eclsavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=False,
                  cbarbounds=cbarbounds,
-                 for_proposal=for_proposal)
+                 for_proposal=for_proposal,
+                 overplot_k2_fields=overplot_k2_fields)
 
         plot_mwd(nparr(df['ra'])[sel_durn],
                  nparr(df['dec'])[sel_durn],
@@ -380,10 +539,11 @@ def only_extended_only_primary(is_deming=False, for_proposal=False):
                  savname=icrssavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
                  cbarbounds=cbarbounds,
-                 for_proposal=for_proposal)
+                 for_proposal=for_proposal,
+                 overplot_k2_fields=overplot_k2_fields)
 
 
-def merged_with_primary(for_proposal=False):
+def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
     """
     make plots for each extended mission, merged with the primary mission.
     """
@@ -448,7 +608,11 @@ def merged_with_primary(for_proposal=False):
                 continue
             eclsavname = eclsavname.replace('.png','_forproposal.png')
             icrssavname = icrssavname.replace('.png','_forproposal.png')
-            size=0.95
+            size=0.8
+
+        if overplot_k2_fields:
+            eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
+            icrssavname = icrssavname.replace('.png','_forproposal_k2overplot.png')
 
         obsdstr = '' if not for_proposal else '_forproposal'
         obsdpath = dirnfile.replace(
@@ -457,7 +621,7 @@ def merged_with_primary(for_proposal=False):
         if not os.path.exists(obsdpath):
             # takes about 1 minute per strategy
             if for_proposal:
-                npts = 4e5
+                npts = 6e5
             else:
                 npts = 2e5
             get_n_observations(dirnfile, obsdpath, int(npts), merged=True)
@@ -465,8 +629,14 @@ def merged_with_primary(for_proposal=False):
         df = pd.read_csv(obsdpath, sep=';')
         df['obs_duration'] = orbit_duration_days*df['n_observations']
 
-        cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
-        sel_durn = (nparr(df['obs_duration']) > 0)
+        #FIXME
+        # cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
+        # sel_durn = (nparr(df['obs_duration']) > 0)
+        #FIXME
+
+        cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
+        sel_durn = (nparr(df['obs_duration']) >= 0)
+
         plot_mwd(nparr(df['elon'])[sel_durn],
                  nparr(df['elat'])[sel_durn],
                  nparr(df['obs_duration'])[sel_durn],
@@ -475,7 +645,8 @@ def merged_with_primary(for_proposal=False):
                  savname=eclsavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=False,
                  cbarbounds=cbarbounds,
-                 for_proposal=for_proposal)
+                 for_proposal=for_proposal,
+                 overplot_k2_fields=overplot_k2_fields)
 
         plot_mwd(nparr(df['ra'])[sel_durn],
                  nparr(df['dec'])[sel_durn],
@@ -485,26 +656,30 @@ def merged_with_primary(for_proposal=False):
                  savname=icrssavname,
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
                  cbarbounds=cbarbounds,
-                 for_proposal=for_proposal)
+                 for_proposal=for_proposal,
+                 overplot_k2_fields=overplot_k2_fields)
 
 
 if __name__=="__main__":
 
     # BEGIN OPTIONS
 
-    separated=1     # make plots for each extended mission, and the primary mission.
-    merged=1        # make plots for merged primary + extended mission.
-    is_deming=0     # draws points from uniform grid, for drake.
-    for_proposal=1  # true to activate options only for the proposal
+    separated=1             # make plots for each extended mission, and the primary mission.
+    merged=1                # make plots for merged primary + extended mission.
+    is_deming=0             # draws points from uniform grid, for drake.
+    for_proposal=1          # true to activate options only for the proposal
+    overplot_k2_fields=1    # true to activate k2 field overplot
 
     # END OPTIONS
 
     if separated:
         only_extended_only_primary(is_deming=is_deming,
-                                   for_proposal=for_proposal)
+                                   for_proposal=for_proposal,
+                                   overplot_k2_fields=overplot_k2_fields)
 
     if merged:
         if not is_deming:
-            merged_with_primary(for_proposal=for_proposal)
+            merged_with_primary(for_proposal=for_proposal,
+                                overplot_k2_fields=overplot_k2_fields)
         else:
             print('dont merge if is deming')
