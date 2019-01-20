@@ -8,3 +8,6 @@ doc/20181116_barclay_meeting.txt
 nominal_pointing_strategies/
 *TESS_SReview*pdf
 results/ecliptic_timing/efficiency_vs*
+*__pycache__*
+*DS_Store
+*vanderspek_emi*
