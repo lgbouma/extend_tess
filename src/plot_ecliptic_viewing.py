@@ -17,6 +17,7 @@ from parse import parse
 from shutil import copyfile
 
 from astropy.time import Time
+from astropy import units as u
 
 def make_data_dir():
 
@@ -185,6 +186,7 @@ def plot_efficiency_vs_time_for_sectornum(df, sectornum=1):
     print('made {}'.format(outpath))
 
 
+
 def plot_avgd_efficiency_vs_orbit_number_plot(df):
 
     ##########################################
@@ -230,10 +232,13 @@ def plot_avgd_efficiency_vs_orbit_number_plot(df):
 
     ax.plot(orbitnums, smooth_efficiency, lw=1, c='gray', zorder=2, alpha=0.5)
 
-    cbar = f.colorbar(cs, pad=0.01)
+    cbar = f.colorbar(cs, pad=0.01, ticks=np.arange(0,360+60,60))
+    cbar.ax.set_yticklabels(list(map(lambda x: str(x)+'$\!$$^\circ$',
+                                     np.arange(0,360+60,60))))
+    cbar.ax.tick_params(direction='in')
 
     ax.set_xlabel('Orbit number')
-    ax.set_ylabel('Duty cycle if observing ecliptic')
+    ax.set_ylabel('Ecliptic observing efficiency')
     cbar.ax.set_ylabel('Anti-Sun ecliptic longitude')
 
     ax.set_ylim([0,1])
@@ -250,16 +255,22 @@ def plot_avgd_efficiency_vs_orbit_number_plot(df):
 
     eclstart = Time('2020-09-16')
     eclend = Time('2021-01-31')
+    # NOTE: we botched the start time by like an orbit in the original
+    # selection window...
+    eclstart += 27.3*u.day/2
+    eclend += 27.3*u.day/2
 
-    ax2.vlines(eclstart.byear, 0, 1, color='gray', zorder=-3, alpha=0.9)
-    ax2.vlines(eclend.byear, 0, 1, color='gray', zorder=-3, alpha=0.9)
+    ax2.vlines(eclstart.byear, 0, 1, color='gray', zorder=-3, alpha=0.9, lw=1)
+    ax2.vlines(eclend.byear, 0, 1, color='gray', zorder=-3, alpha=0.9, lw=1)
     ax2.fill_between(np.linspace(eclstart.byear,eclend.byear,100), 0, 1,
                      color='gray', zorder=-5, alpha=0.1)
 
     ax2.vlines(primarystart.byear, 0, 1, color='gray', zorder=-3, alpha=0.3,
-               linestyles='--')
-    ax2.vlines(emstart.byear, 0, 1, color='gray', zorder=-3, alpha=0.3, linestyles='--')
-    ax2.vlines(emend.byear, 0, 1, color='gray', zorder=-3, alpha=0.3, linestyles='--')
+               linestyles='--', lw=1)
+    ax2.vlines(emstart.byear, 0, 1, color='gray', zorder=-3, alpha=0.3,
+               linestyles='--', lw=1)
+    ax2.vlines(emend.byear, 0, 1, color='gray', zorder=-3, alpha=0.3,
+               linestyles='--', lw=1)
 
     ax2.text(
         primarystart.byear + (emstart.byear - primarystart.byear)/2,
@@ -281,6 +292,10 @@ def plot_avgd_efficiency_vs_orbit_number_plot(df):
         rotation=0,
         fontsize='small'
     )
+
+    ax.get_yaxis().set_tick_params(which='both', direction='in')
+    ax.get_xaxis().set_tick_params(which='both', direction='in')
+    ax2.get_xaxis().set_tick_params(which='both', direction='in')
 
     outdir = '../results/ecliptic_timing/'
     outpath = os.path.join(
