@@ -29,7 +29,8 @@ def _shift_lon_get_x(lon, origin):
 def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
              projection='mollweide',savdir='../results/',savname='mwd_0.pdf',
              overplot_galactic_plane=True, is_tess=False, is_radec=None,
-             cbarbounds=None, for_proposal=False, overplot_k2_fields=False):
+             cbarbounds=None, for_proposal=False, overplot_k2_fields=False,
+             for_GRR=False):
 
     '''
     args, kwargs:
@@ -64,20 +65,39 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         # set up colormap
         import seaborn as sns
 
-        if for_proposal:
+        if for_proposal or for_GRR:
             # rgbs = sns.diverging_palette(255, 133, l=60, n=12, center="dark")
             # rgbs = sns.diverging_palette(230, 15, s=99, l=70, n=13,
             #                              center="dark")
 
-            # FIXME # 13-color (no "0" stars)
+            # # 13-color (no "0" stars)
             # colors = ["#e7d914", "#ceb128", "#b58a3d", "#866c50", "#515263",
             #           "#1b3876", "#002680", "#001d80", "#001480", "#000c80",
             #           "#000880", "#000480", "#000080"]
 
-            # 14-color
-            colors = ["#ffffff", "#e7d914", "#ceb128", "#b58a3d", "#866c50",
-                      "#515263", "#1b3876", "#002680", "#001d80", "#001480",
-                      "#000c80", "#000880", "#000480", "#000080"]
+            # 14 color
+            if len(cbarbounds) < 15:
+
+                colors = ["#ffffff", "#e7d914", "#ceb128", "#b58a3d",
+                          "#866c50", "#515263", "#1b3876", "#002680",
+                          "#001d80", "#001480", "#000c80", "#000880",
+                          "#000480", "#000080"]
+
+            # 28 color (kind of)
+            elif len(cbarbounds) < 30:
+
+                # first three orbits obsd get different colors. some difference
+                # between 1yr and 2yr too.
+
+                colors = ["#ffffff", "#e7d914", "#ceb128",
+                          "#b58a3d", "#b58a3d", "#b58a3d", "#b58a3d",
+                          "#866c50", "#866c50", "#866c50", "#866c50",
+                          "#515263", "#515263", "#515263", "#515263",
+                          "#1b3876", "#1b3876", "#1b3876", "#1b3876",
+                          "#002680", "#002680", "#002680", "#002680",
+                          "#000c80", "#000880", "#000880", "#000880",
+                          "#000c80"]
+
 
             from matplotlib.colors import LinearSegmentedColormap
             cmap = LinearSegmentedColormap.from_list(
@@ -114,15 +134,20 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                        rasterized=True)
 
         # set up colorbar
+        if len(colors) < 15:
+            ticks = 27.32*(np.arange(-1,13)+1)
+            ylabels = list(map(str,np.round(27.32*(np.arange(0,13)),1)))
+            ylabels[-1] = '$\geq \! 328$'
+        elif len(colors) < 30:
+            ticks = 27.32*(np.arange(-1,26)+1)
+            ylabels = list(map(str,np.round(27.32*(np.arange(0,27)),1)))
+            #ylabels[-1] = '$\geq \! 710$'
+
         cbar = fig.colorbar(cax, cmap=cmap, norm=norm, boundaries=bounds,
                             fraction=0.025, pad=0.03,
-                            #ticks=27.32*(np.arange(13)+1), #FIXME
-                            ticks=27.32*(np.arange(-1,13)+1),
+                            ticks=ticks,
                             orientation='vertical')
 
-        # ylabels = list(map(str,np.round(27.32*(np.arange(1,13)),1))) #FIXME
-        ylabels = list(map(str,np.round(27.32*(np.arange(0,13)),1)))
-        ylabels[-1] = '$\geq \! 328$'
         cbar.ax.set_yticklabels(ylabels, fontsize='x-small')
         cbar.set_label('Days observed', rotation=270, labelpad=10)
         cbar.ax.tick_params(direction='in')
@@ -310,7 +335,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
     ax.grid(color='lightgray', linestyle='--', linewidth=0.5, zorder=-3,
             alpha=0.15)
 
-    if not for_proposal:
+    if not for_proposal and not for_GRR:
         ax.text(0.99,0.01,'github.com/lgbouma/extend_tess',
                 fontsize='4',transform=ax.transAxes,
                 ha='right',va='bottom')
@@ -322,7 +347,8 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
 
 def get_n_observations(dirnfile, outpath, n_stars, merged=False,
-                       is_deming=False, withgaps=True):
+                       is_deming=False, withgaps=True,
+                       aligncelestial=False):
 
     np.random.seed(42)
 
@@ -396,7 +422,8 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
         print(row['start'])
         cam_direction = row['camdirection']
 
-        onchip = gcgss(coords, cam_direction, verbose=False, withgaps=withgaps)
+        onchip = gcgss(coords, cam_direction, verbose=False, withgaps=withgaps,
+                       aligncelestial=aligncelestial)
 
         n_observations += onchip
 
@@ -411,7 +438,7 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
 
 
 def only_extended_only_primary(is_deming=False, for_proposal=False,
-                               overplot_k2_fields=False):
+                               overplot_k2_fields=False, for_GRR=False):
     """
     make plots for each extended mission, and the primary mission.
     (no merging)
@@ -431,7 +458,8 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                  'primary_mission.csv',
                  'idea_7_eclc3po-8orbitq.csv',
                  'idea_8_SNEsparse.csv',
-                 'idea_9_SNEshifted.csv'
+                 'idea_9_SNEshifted.csv',
+                 'idea_10_eclrotated.csv'
                 ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
@@ -443,7 +471,8 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                    'primary_mission_eclmap.png',
                    'idea_7_eclc3po-8orbitq_eclmap.png',
                    'idea_8_SNEsparse_eclmap.png',
-                   'idea_9_SNEshifted_eclmap.png'
+                   'idea_9_SNEshifted_eclmap.png',
+                   'idea_10_eclrotated_eclmap.png'
                   ]
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
@@ -455,7 +484,8 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                     'primary_mission_icrsmap.png',
                     'idea_7_eclc3po-8orbitq_icrsmap.png',
                     'idea_8_SNEsparse_icrsmap.png',
-                    'idea_9_SNEshifted_icrsmap.png'
+                    'idea_9_SNEshifted_icrsmap.png',
+                    'idea_10_eclrotated_icrsmap.png'
                    ]
 
     titles = ['idea 1 N(6)->ecliptic(10)->S(26)->N(remain)',
@@ -467,7 +497,8 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
               'primary mission',
               'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters',
               'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18',
-              'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)'
+              'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)',
+              'idea 10 ECLROT(26)->N/S/other (TDB)'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
@@ -483,6 +514,10 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
             eclsavname = eclsavname.replace('.png','_forproposal.png')
             icrssavname = icrssavname.replace('.png','_forproposal.png')
             size=0.8
+
+        if for_GRR:
+            if ix not in [10]: #FIXME: GRR's idea
+                continue
 
         if overplot_k2_fields:
             eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
@@ -505,9 +540,14 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
             if for_proposal:
                 npts = 6e5
             else:
-                npts = 2e5
-            get_n_observations(dirnfile, obsdpath, int(npts),
-                               is_deming=is_deming)
+                npts = 1e5 #FIXME 2e5
+
+            if for_GRR:
+                get_n_observations(dirnfile, obsdpath, int(npts),
+                                   is_deming=is_deming, aligncelestial=True)
+            else:
+                get_n_observations(dirnfile, obsdpath, int(npts),
+                                   is_deming=is_deming)
 
         df = pd.read_csv(obsdpath, sep=';')
         df['obs_duration'] = orbit_duration_days*df['n_observations']
@@ -517,7 +557,12 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
         # sel_durn = (nparr(df['obs_duration']) > 0)
         #FIXME
 
-        cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
+        # # worked pre 20190131
+        # cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
+        # sel_durn = (nparr(df['obs_duration']) >= 0)
+
+        # post 20190131
+        cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
         sel_durn = (nparr(df['obs_duration']) >= 0)
 
         plot_mwd(nparr(df['elon'])[sel_durn],
@@ -529,7 +574,8 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                  overplot_galactic_plane=True, is_tess=True, is_radec=False,
                  cbarbounds=cbarbounds,
                  for_proposal=for_proposal,
-                 overplot_k2_fields=overplot_k2_fields)
+                 overplot_k2_fields=overplot_k2_fields,
+                 for_GRR=for_GRR)
 
         plot_mwd(nparr(df['ra'])[sel_durn],
                  nparr(df['dec'])[sel_durn],
@@ -540,7 +586,8 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
                  cbarbounds=cbarbounds,
                  for_proposal=for_proposal,
-                 overplot_k2_fields=overplot_k2_fields)
+                 overplot_k2_fields=overplot_k2_fields,
+                 for_GRR=for_GRR)
 
 
 def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
@@ -634,8 +681,14 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
         # sel_durn = (nparr(df['obs_duration']) > 0)
         #FIXME
 
-        cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
+        # # worked pre 20190131
+        # cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
+        # sel_durn = (nparr(df['obs_duration']) >= 0)
+
+        # post 20190131
+        cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
         sel_durn = (nparr(df['obs_duration']) >= 0)
+
 
         plot_mwd(nparr(df['elon'])[sel_durn],
                  nparr(df['elat'])[sel_durn],
@@ -668,14 +721,16 @@ if __name__=="__main__":
     merged=1                # make plots for merged primary + extended mission.
     is_deming=0             # draws points from uniform grid, for drake.
     for_proposal=1          # true to activate options only for the proposal
-    overplot_k2_fields=1    # true to activate k2 field overplot
+    overplot_k2_fields=0    # true to activate k2 field overplot
+    for_GRR=0
 
     # END OPTIONS
 
     if separated:
         only_extended_only_primary(is_deming=is_deming,
                                    for_proposal=for_proposal,
-                                   overplot_k2_fields=overplot_k2_fields)
+                                   overplot_k2_fields=overplot_k2_fields,
+                                   for_GRR=for_GRR)
 
     if merged:
         if not is_deming:
