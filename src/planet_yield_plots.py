@@ -368,10 +368,10 @@ def number_of_detections_vs_period_barchart(df, txt=None, ylim=None,
 
 
     counts_ext = np.histogram(df.loc[after_ext, 'planetPeriod'],
-                              bins=[0,20,50,1000])
+                              bins=[0,20,50,100,1000])
 
     counts_pri = np.histogram(df.loc[in_pri, 'planetPeriod'],
-                              bins=[0,20,50,1000])
+                              bins=[0,20,50,100,1000])
 
     yval_ext = counts_ext[0]
     yval_pri = counts_pri[0]
@@ -380,15 +380,15 @@ def number_of_detections_vs_period_barchart(df, txt=None, ylim=None,
         yval_ext = yval_ext/yval_pri
         yval_pri = yval_pri/yval_pri
 
-    tl = ['$<20$', '$20-50$', '$>50$']
+    tl = ['$<20$', '$20-50$', '$50-100$', '$>100$']
 
     plt.close("all")
     fig, ax = plt.subplots(1,1,figsize=[4,4])
 
     if outstr not in ['oneortwotraonly_']:
-        h_pri = ax.bar(np.arange(3), yval_pri, tick_label=tl,
+        h_pri = ax.bar(np.arange(4), yval_pri, tick_label=tl,
                        label='Prime', zorder=2, color='#1f77b4')
-    h_ext = ax.bar(np.arange(3), yval_ext, tick_label=tl,
+    h_ext = ax.bar(np.arange(4), yval_ext, tick_label=tl,
                    label='Extended', zorder=1, color='#ff7f0e')
 
     ax.set_xlabel('Orbital period (days)')
@@ -416,7 +416,7 @@ def number_of_detections_vs_period_barchart(df, txt=None, ylim=None,
         if outstr not in ['oneortwotraonly_']:
             autolabel2(h_pri, ax)
 
-    ax.legend(loc='upper left', fontsize='small')
+    ax.legend(loc='upper left', fontsize='x-small')
 
     if ylim:
         ax.set_ylim(ylim)
@@ -782,9 +782,9 @@ if __name__=="__main__":
         format(dn)) for dn in datanames]
 
     one_thru_three = 0
-    four_thru_eight = 1
+    four_thru_eight = 0
     nine_thru_thirteen = 0
-    fourteen_thru_X =0
+    fourteen_thru_X =1
 
     for datapath, outdir in zip(datapaths, outdirs):
         print(datapath)
