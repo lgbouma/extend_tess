@@ -88,8 +88,8 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
                 # first three orbits obsd get different colors. some difference
                 # between 1yr and 2yr too.
-
-                colors = ["#ffffff", "#e7d914", "#ceb128",
+                # take 1
+                colors0 = ["#ffffff", "#e7d914", "#ceb128",
                           "#b58a3d", "#b58a3d", "#b58a3d", "#b58a3d",
                           "#866c50", "#866c50", "#866c50", "#866c50",
                           "#515263", "#515263", "#515263", "#515263",
@@ -98,6 +98,35 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                           "#000c80", "#000880", "#000880", "#000880",
                           "#000c80"]
 
+                colors1 = ["#ffffff", # N=0 white
+                          "#e7d914", # N=1 pale yellow
+                          "#e7a013", # N=2 a little more saturated
+                          "#f7781d", # N=3-5 a little more saturated
+                          "#f7781d", # N=6-11 saturated orange
+                          "#f7781d", "#e86000", "#e86000",
+                          "#e86000", "#e86000", "#e86000", "#e86000",
+                          "#e80000", "#e80000", # N=12,13 saturated red
+                          "#12aee7", # N=14-20 different blue
+                          "#12aee7","#12aee7","#12aee7",
+                          "#12aee7","#12aee7","#12aee7",
+                          "#126ae7", # N=21-26 saturated blue
+                          "#126ae7", "#126ae7", "#126ae7",
+                          "#126ae7", "#126ae7", "#126ae7"]
+
+                colors = ["#ffffff", # N=0 white
+                          "#84ccff", # N=1 pale blue
+                          "#35aaff", # N=2 a little more saturated
+                          "#279aea", # N=3-5 a little more saturated
+                          "#279aea", # N=6-11 more saturated blue
+                          "#279aea", "#1f77b4", "#1f77b4",
+                          "#1f77b4", "#1f77b4", "#1f77b4", "#1f77b4",
+                          "#126199", "#126199", # N=12,13 saturated blue
+                          "#ffa251", # N=14-20 light orange
+                          "#ffa251","#ffa251","#ffa251",
+                          "#ffa251","#ffa251","#ffa251",
+                          "#ff7f0e", # N=21-26 saturated orange
+                          "#ff7f0e", "#ff7f0e", "#ff7f0e",
+                          "#ff7f0e", "#ff7f0e", "#ff7f0e"]
 
             from matplotlib.colors import LinearSegmentedColormap
             cmap = LinearSegmentedColormap.from_list(
@@ -119,19 +148,38 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                          s=0, lw=0, zorder=2, cmap=cmap, norm=norm,
                          rasterized=True)
 
-        #FIXME
-        sel = color_val > 0
-        _ = ax.scatter(np.radians(x[sel]),np.radians(dec[sel]),
-                       c=color_val[sel], s=size,
-                       lw=0, zorder=-1, cmap=cmap, norm=norm,
-                       marker='o',
-                       rasterized=True)
+        max_cv = np.max(color_val)
+        for cv in np.sort(np.unique(color_val)):
+            if cv == 0:
+                continue
+            sel = color_val == cv
+            zorder = int(-1 - max_cv)
+            _ = ax.scatter(np.radians(x[sel]),np.radians(dec[sel]),
+                           c=color_val[sel], s=size,
+                           lw=0, zorder=zorder, cmap=cmap, norm=norm,
+                           marker='o',
+                           rasterized=True)
 
+        sel = color_val > 0
         _ = ax.scatter(np.radians(x[~sel]),np.radians(dec[~sel]),
                        c=color_val[~sel],
                        s=size/4, lw=0, zorder=0, cmap=cmap, norm=norm,
                        marker='s',
                        rasterized=True)
+
+        # #FIXME WORKS!
+        # _ = ax.scatter(np.radians(x[sel]),np.radians(dec[sel]),
+        #                c=color_val[sel], s=size,
+        #                lw=0, zorder=-1, cmap=cmap, norm=norm,
+        #                marker='o',
+        #                rasterized=True)
+
+        # _ = ax.scatter(np.radians(x[~sel]),np.radians(dec[~sel]),
+        #                c=color_val[~sel],
+        #                s=size/4, lw=0, zorder=0, cmap=cmap, norm=norm,
+        #                marker='s',
+        #                rasterized=True)
+        # #FIXME WORKS!
 
         # set up colorbar
         if len(colors) < 15:
@@ -139,9 +187,13 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
             ylabels = list(map(str,np.round(27.32*(np.arange(0,13)),1)))
             ylabels[-1] = '$\geq \! 328$'
         elif len(colors) < 30:
-            ticks = 27.32*(np.arange(-1,26)+1)
-            ylabels = list(map(str,np.round(27.32*(np.arange(0,27)),1)))
+            #ticks = 27.32*(np.arange(-1,26)+1) #FIXME
+            #ylabels = list(map(str,np.round(27.32*(np.arange(0,27)),1)))
             #ylabels[-1] = '$\geq \! 710$'
+
+            ticks = (np.arange(-1,26)+1)
+            ylabels = list(map(str,np.round((np.arange(0,27)),1)))
+
 
         cbar = fig.colorbar(cax, cmap=cmap, norm=norm, boundaries=bounds,
                             fraction=0.025, pad=0.03,
@@ -149,7 +201,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                             orientation='vertical')
 
         cbar.ax.set_yticklabels(ylabels, fontsize='x-small')
-        cbar.set_label('Days observed', rotation=270, labelpad=10)
+        cbar.set_label('Lunar months observed', rotation=270, labelpad=10)
         cbar.ax.tick_params(direction='in')
 
     else:
@@ -198,7 +250,8 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         is_mipoint = ((kep['row']==535) & (kep['column']==550))
         kep = kep[~is_mipoint]
 
-        kep_coord = SkyCoord(kep['ra']*u.deg, kep['dec']*u.deg, frame='icrs')
+        kep_coord = SkyCoord(np.array(kep['ra'])*u.deg,
+                             np.array(kep['dec'])*u.deg, frame='icrs')
         kep_elon = kep_coord.barycentrictrueecliptic.lon.value
         kep_elat = kep_coord.barycentrictrueecliptic.lat.value
         kep['elon'] = kep_elon
@@ -446,7 +499,7 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
 
     datadir = '../data/'
     savdir = '../results/visualize_survey_designs/'
-    orbit_duration_days = 27.32 / 2
+    orbit_duration_days = 1/2 #27.32 / 2
 
     # things to change
     filenames = ['idea_1_SN_ecliptic.csv',
@@ -516,7 +569,7 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
             size=0.8
 
         if for_GRR:
-            if ix not in [10]: #FIXME: GRR's idea
+            if ix not in [10]:
                 continue
 
         if overplot_k2_fields:
@@ -540,7 +593,7 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
             if for_proposal:
                 npts = 6e5
             else:
-                npts = 1e5 #FIXME 2e5
+                npts = 1e5
 
             if for_GRR:
                 get_n_observations(dirnfile, obsdpath, int(npts),
@@ -562,7 +615,9 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
         # sel_durn = (nparr(df['obs_duration']) >= 0)
 
         # post 20190131
-        cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
+        #cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
+        cbarbounds = np.arange(-1/2, 27, 1) #FIXME
+
         sel_durn = (nparr(df['obs_duration']) >= 0)
 
         plot_mwd(nparr(df['elon'])[sel_durn],
@@ -597,7 +652,7 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
 
     datadir = '../data/'
     savdir = '../results/visualize_survey_designs/merged_with_primary/'
-    orbit_duration_days = 27.32 / 2
+    orbit_duration_days = 1/2 #27.32 / 2
 
     # things to change
     filenames = ['idea_1_SN_ecliptic.csv',
@@ -686,7 +741,8 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
         # sel_durn = (nparr(df['obs_duration']) >= 0)
 
         # post 20190131
-        cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
+        #cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
+        cbarbounds = np.arange(-1/2, 2*13.5, 1)
         sel_durn = (nparr(df['obs_duration']) >= 0)
 
 
@@ -719,10 +775,10 @@ if __name__=="__main__":
 
     separated=1             # make plots for each extended mission, and the primary mission.
     merged=1                # make plots for merged primary + extended mission.
-    is_deming=0             # draws points from uniform grid, for drake.
     for_proposal=1          # true to activate options only for the proposal
-    overplot_k2_fields=0    # true to activate k2 field overplot
-    for_GRR=0
+    overplot_k2_fields=1    # true to activate k2 field overplot
+    is_deming=0             # draws points from uniform grid, for drake.
+    for_GRR=0               # if true, make GRR's NCP-pointing idea.
 
     # END OPTIONS
 
