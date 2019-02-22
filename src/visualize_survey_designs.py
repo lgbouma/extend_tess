@@ -149,11 +149,11 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                          rasterized=True)
 
         max_cv = np.max(color_val)
-        for cv in np.sort(np.unique(color_val)):
+        for ix, cv in enumerate(np.sort(np.unique(color_val))):
             if cv == 0:
                 continue
             sel = color_val == cv
-            zorder = int(-1 - max_cv)
+            zorder = int(- max_cv - 1 + ix)
             _ = ax.scatter(np.radians(x[sel]),np.radians(dec[sel]),
                            c=color_val[sel], s=size,
                            lw=0, zorder=zorder, cmap=cmap, norm=norm,
@@ -163,7 +163,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         sel = color_val > 0
         _ = ax.scatter(np.radians(x[~sel]),np.radians(dec[~sel]),
                        c=color_val[~sel],
-                       s=size/4, lw=0, zorder=0, cmap=cmap, norm=norm,
+                       s=size/4, lw=0, zorder=-50, cmap=cmap, norm=norm,
                        marker='s',
                        rasterized=True)
 
@@ -566,7 +566,7 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                 continue
             eclsavname = eclsavname.replace('.png','_forproposal.png')
             icrssavname = icrssavname.replace('.png','_forproposal.png')
-            size=0.8
+            size=0.5
 
         if for_GRR:
             if ix not in [10]:
@@ -591,7 +591,7 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
         if not os.path.exists(obsdpath):
             # takes about 1 minute per strategy
             if for_proposal:
-                npts = 6e5
+                npts = 12e5
             else:
                 npts = 1e5
 
@@ -710,7 +710,7 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
                 continue
             eclsavname = eclsavname.replace('.png','_forproposal.png')
             icrssavname = icrssavname.replace('.png','_forproposal.png')
-            size=0.8
+            size=0.5
 
         if overplot_k2_fields:
             eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
@@ -723,7 +723,7 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
         if not os.path.exists(obsdpath):
             # takes about 1 minute per strategy
             if for_proposal:
-                npts = 6e5
+                npts = 12e5
             else:
                 npts = 2e5
             get_n_observations(dirnfile, obsdpath, int(npts), merged=True)
