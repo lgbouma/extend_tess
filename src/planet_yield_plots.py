@@ -773,7 +773,7 @@ def new_planets_newsky_or_snrboost_vs_plradius(df, txt=None, ylim=None,
 
 if __name__=="__main__":
 
-    names = ['idea_1_SNE-v4']
+    names = ['idea_1_SNE-v5']
     outdirs = [os.path.join('../results/planet_yield_plots/',dirname)
                for dirname in names]
     datanames = [n.split('_')[-1] for n in names]
@@ -781,9 +781,9 @@ if __name__=="__main__":
         '../data/tommyb', 'detected_planet_catalog_{:s}.csv.bz2'.
         format(dn)) for dn in datanames]
 
-    one_thru_three = 0
-    four_thru_eight = 0
-    nine_thru_thirteen = 0
+    one_thru_three = 1
+    four_thru_eight = 1
+    nine_thru_thirteen = 1
     fourteen_thru_X =1
 
     for datapath, outdir in zip(datapaths, outdirs):
@@ -870,4 +870,4 @@ if __name__=="__main__":
 
             number_of_detections_vs_period_barchart(
                 df, txt='SNR>10 and $N_{\mathrm{tra,ext}} >= 3$',
-                ylim=(0,5), outdir=outdir, yscale='log', forproposal=True)
+                ylim=(0,6), outdir=outdir, yscale='log', forproposal=True)
