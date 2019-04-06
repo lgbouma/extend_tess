@@ -1,6 +1,2 @@
-idea_1_SN_ecliptic_coords_observed_merged.csv --- 87.52% of sky observed
-idea_2_SNSNS_hemi_coords_observed_merged.csv --- 79.80% of sky observed
-idea_3_SNNSN_hemi_coords_observed_merged.csv --- 79.80% of sky observed
-idea_4_ecliptic_and_C3PO_quarters_coords_observed_merged.csv --- 88.94% of sky observed
-idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_coords_observed_merged.csv --- 89.28% of sky observed
-idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_coords_observed_merged.csv --- 89.62% of sky observed
+idea_12_SNEshifted_coords_observed_merged_forproposal.csv --- 93.80% of sky observed
+primary_mission_coords_observed_forproposal.csv --- 79.80% of sky observed

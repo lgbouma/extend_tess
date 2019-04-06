@@ -1,0 +1,71 @@
+/home/luke/local/miniconda3/envs/sci/lib/python3.6/site-packages/matplotlib/projections/geo.py:421: RuntimeWarning: invalid value encountered in arcsin
+  theta = np.arcsin(y / np.sqrt(2))
+saved ../results/visualize_survey_designs/primary_mission_eclmap_forproposal.png
+saved ../results/visualize_survey_designs/primary_mission_icrsmap_forproposal.png
+2020-06-27
+2020-07-10
+2020-07-24
+2020-08-06
+2020-08-20
+2020-09-03
+2020-09-16
+2020-09-30
+2020-10-14
+2020-10-27
+2020-11-10
+2020-11-24
+2020-12-07
+2020-12-21
+2021-01-04
+2021-01-17
+2021-01-31
+2021-02-14
+2021-02-27
+2021-03-13
+2021-03-27
+2021-04-09
+2021-04-23
+2021-05-07
+2021-05-20
+2021-06-03
+2021-06-17
+2021-06-30
+2021-07-14
+2021-07-28
+2021-08-10
+2021-08-24
+2021-09-07
+2021-09-20
+2021-10-04
+2021-10-18
+2021-10-31
+2021-11-14
+2021-11-28
+2021-12-11
+2021-12-25
+2022-01-08
+2022-01-21
+2022-02-04
+2022-02-18
+2022-03-03
+2022-03-17
+2022-03-31
+2022-04-13
+2022-04-27
+2022-05-11
+2022-05-24
+2022-06-07
+2022-06-20
+2022-07-04
+2022-07-18
+2022-07-31
+2022-08-14
+2022-08-28
+2022-09-10
+2022-09-24
+2022-10-08
+saved ../data/idea_13_final_shifted_coords_observed_forproposal.csv
+saved ../results/visualize_survey_designs/idea_13_SNE_eclmap_forproposal.png
+saved ../results/visualize_survey_designs/idea_13_SNE_icrsmap_forproposal.png
+saved ../results/visualize_survey_designs/merged_with_primary/idea_13_SNE_eclmap_forproposal.png
+saved ../results/visualize_survey_designs/merged_with_primary/idea_13_SNE_icrsmap_forproposal.png
