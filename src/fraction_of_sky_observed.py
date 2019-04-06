@@ -23,7 +23,9 @@ from glob import glob
 
 if __name__=="__main__":
 
-    fnames = np.sort(glob('../data/*_observed_merged.csv'))
+    fnames1 = np.sort(glob('../data/idea_12*_observed_merged_forproposal.csv'))
+    fnames2 = np.sort(glob('../data/primary*_observed_*forproposal.csv'))
+    fnames = np.concatenate((fnames1, fnames2))
 
     for fname in fnames:
 

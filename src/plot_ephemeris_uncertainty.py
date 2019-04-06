@@ -20,186 +20,138 @@ from astropy.time import Time
 from astropy import units as u
 
 from scipy.stats import linregress
+from scipy.optimize import curve_fit
 
 from matplotlib.ticker import MaxNLocator
 import matplotlib.transforms as transforms
 
-def plot_ephemeris_uncertainty():
+from astrobase.timeutils import get_epochs_given_midtimes_and_period
+
+def linear_model(xdata, m, b):
+    return m*xdata + b
+
+
+def plot_ephemeris_uncertainty(seed=42):
+
+    primarystart = Time('2018-07-18')
+    emstart = Time('2020-06-27')
 
     N_tra = 3 # in primary...
     sigma_tc_single_tra = (4*u.minute).to(u.hr).value
     period_yr = 10/365.25 # days
     ext_transit_epoch = 73 # 73 transits later... roughly 2 years
-    epoch_interp = np.arange(0, 400, 1)
+    _epoch = np.arange(0, 400, 1)
 
+    # epochs [0,1,2,73] are observed
     primary_epochs = np.arange(0,N_tra)
     epochs = np.concatenate((np.atleast_1d(primary_epochs),
-                             np.atleast_1d(np.array(ext_transit_epoch)))
-                           )
+                             np.atleast_1d(np.array(ext_transit_epoch))))
 
-    primarystart = Time('2018-07-18')
-    emstart = Time('2020-06-27')
-    emend = Time('2022-10-08')
-    jwstlaunch = Time('2021-03-30') # https://www.nasa.gov/press-release/nasa-completes-webb-telescope-review-commits-to-launch-in-early-2021
-    gmteltstart = Time('2024-06-01') # roughly simultaneous (https://www.gmto.org/overview/, https://www.eso.org/sci/facilities/eelt/)
-    tmtstart = Time('2027-07-20') # https://www.tmt.org/page/timeline?category=Observatory+Construction
+    # true transit times of observed transits.
+    true_transit_times = primarystart.byear + period_yr*epochs
 
-    true_transit_times = (
-        primarystart.byear + period_yr*epochs
-    )
-
+    np.random.seed(seed)
     err_tc_hr = np.random.normal(0., sigma_tc_single_tra, size=N_tra+1)
 
     # add errors to true times. get observed transit times (in years)
     observed_transit_times = true_transit_times + err_tc_hr/(24*365.25)
 
-    # fit t_mid_observed vs epoch. tmid = t_0 + P*E. "P" is in years.
-    (slope,
-     intercept,
-     r_value,
-     p_value,
-     std_err) = linregress(epochs[:-1], observed_transit_times[:-1])
+    print((observed_transit_times-true_transit_times)*365.25*24*60)
 
-    (slope_extra,
-     intercept_extra,
-     r_value_extra,
-     p_value_extra,
-     std_err_extra) = linregress(epochs, observed_transit_times)
+    # fit t_mid_observed vs epoch. tmid = t_0 + P*E. The slope, "P" is in
+    # years; so is std_err_period.
+    (slope, intercept, r_value, p_value, std_err_period
+    ) = linregress(epochs[:-1], observed_transit_times[:-1])
 
+    # when refitting, you need to set the epoch zero-point to be the weighted
+    # mid-time of the timeseries... note: this doesn't really change anything!
+    # i did the fitting without this, and it changed nothing.
+    epoch_shifted, _ = (
+        get_epochs_given_midtimes_and_period(
+            observed_transit_times, period_yr,
+            err_t_mid=np.ones_like(epochs)*sigma_tc_single_tra/(24*365.25) ,
+            verbose=True)
+    )
+
+    (slope_EM, intercept_EM, r_value_EM, p_value_EM, std_err_period_EM
+    ) = linregress(epoch_shifted, observed_transit_times)
+
+    ##########################################
+    # EXTRA CHECK: manually checked that the period errors from these different
+    # least squares routines agree to 1e-14 (years) in the "_EM" case, and
+    # 1e-10 (years) in the prime-only case.
+    popt, pcov = curve_fit(
+        linear_model, epochs[:-1], observed_transit_times[:-1],
+        p0=(period_yr, intercept), sigma=np.ones_like(epochs[:-1])*sigma_tc_single_tra/(24*365.25)
+    )
+    lsfit_period = popt[0]
+    lsfit_period_err = pcov[0,0]**0.5
+    lsfit_t0 = popt[1]
+    lsfit_t0_err = pcov[1,1]**0.5
+
+    popt, pcov = curve_fit(
+        linear_model, epoch_shifted, observed_transit_times,
+        p0=(period_yr, intercept), sigma=np.ones_like(epochs)*sigma_tc_single_tra/(24*365.25)
+    )
+    lsfit_period = popt[0]
+    lsfit_period_err_EM = pcov[0,0]**0.5
+    lsfit_t0 = popt[1]
+    lsfit_t0_err_EM = pcov[1,1]**0.5
+    # END EXTRA CHECK
     ##########################################
 
     f, ax = plt.subplots(figsize=(6,4))
 
-    # epochs in units of time
-    t_interp_byear = primarystart.byear + epoch_interp*period_yr
-    t_epochs_byear = primarystart.byear + epochs*period_yr
+    # true midtimes of transits at every epoch (regardless of observability)
+    t_interp_byear = primarystart.byear + _epoch*period_yr
 
-    tmid_calc = intercept + slope*epochs
-
-    # plot observed - calculated
-    ax.errorbar(
-        t_epochs_byear, (observed_transit_times - tmid_calc)*(365.25*24),
-        yerr=sigma_tc_single_tra, fmt='.', c='k', markersize=5
+    # inferred midtimes from primary only. tmid = t_0 + period*epoch. note
+    # "1_sig" in variable names is really 2 sigma.
+    tmid_interp = intercept + slope*_epoch
+    tmid_interp_plus_1_sig = intercept + (slope+1.96*std_err_period)*_epoch
+    tmid_interp_minus_1_sig = intercept + (slope-1.96*std_err_period)*_epoch
+    # inferred midtimes from extended + primary.
+    tmid_interp_EM = intercept_EM + slope_EM*_epoch
+    tmid_interp_plus_1_sig_EM = (
+        intercept_EM + (slope_EM+1.96*std_err_period_EM)*_epoch
+    )
+    tmid_interp_minus_1_sig_EM = (
+        intercept_EM + (slope_EM-1.96*std_err_period_EM)*_epoch
     )
 
-    # tmid = t_0 + period*epoch
-    tmid_interp = intercept + slope*epoch_interp
-    tmid_interp_plus_1_sig = intercept + (slope+1.96*std_err)*epoch_interp
-    tmid_interp_minus_1_sig = intercept + (slope-1.96*std_err)*epoch_interp
-    tmid_interp_extra = intercept_extra + slope_extra*epoch_interp
-    tmid_interp_plus_1_sig_extra = (
-        intercept_extra + (slope_extra+1.96*std_err_extra)*epoch_interp
-    )
-    tmid_interp_minus_1_sig_extra = (
-        intercept_extra + (slope_extra-1.96*std_err_extra)*epoch_interp
-    )
+    # width is the predicted tmid (+2sigma) minus the predicted tmid (-2sigma).
+    prime = (
+        tmid_interp_plus_1_sig - tmid_interp_minus_1_sig
+    )*(365.25*24)
 
-    # the mid-line plots (NOTE: not shown)
-    #ax.plot(t_interp_byear, (tmid_interp-tmid_interp_extra)*(365.25*24), ls='--',
-    #        c='#1f77b4', zorder=1, alpha=0.7)
-    # ax.plot(t_interp_byear, (tmid_interp_extra-tmid_interp_extra)*(365.25*24),
-    #         ls='--', c='#a35611', zorder=2)
-    ax.fill_between(t_interp_byear,
-                    (tmid_interp_minus_1_sig-tmid_interp_extra)*(365.25*24),
-                    (tmid_interp_plus_1_sig-tmid_interp_extra)*(365.25*24),
-                    color='#1f77b4', lw=0, zorder=-3, alpha=0.3)
-    ax.fill_between(t_interp_byear,
-                    (tmid_interp_minus_1_sig_extra-tmid_interp_extra)*(365.25*24),
-                    (tmid_interp_plus_1_sig_extra-tmid_interp_extra)*(365.25*24),
-                    color='#ff7f0e', zorder=-2, alpha=1)
+    extend = (
+        tmid_interp_plus_1_sig_EM - tmid_interp_minus_1_sig_EM
+    )*(365.25*24)
 
-    ax.hlines(0.5, 2018, 2029, linestyles='-', color='k', zorder=5, alpha=0.7,
-              lw=1)
-    ax.hlines(-0.5, 2018, 2029, linestyles='-', color='k', zorder=5, alpha=0.7,
-              lw=1)
-    arrowprops = dict(facecolor='black', edgecolor='black', arrowstyle='->',
-                      linewidth=0.5, connectionstyle='arc3,rad=-0.05')
-    bbox = dict(facecolor='white',edgecolor='none',
-                alpha=0.95,linewidth=0.5,pad=0.2)
-    ax.annotate('$\pm 30\,{\mathrm{minutes}}$', xy=(2019.5, -0.5),
-                xycoords='data', xytext=(2019.8,-10), ha='center', va='center',
-                arrowprops=arrowprops, bbox=bbox, zorder=4)
+    ax.plot(t_interp_byear[prime>0], prime[prime>0], color='#1f77b4',
+            zorder=-3, alpha=1, lw=3)
+    sel = (extend>0) & (t_interp_byear > emstart.byear)
+    ax.plot(t_interp_byear[sel], extend[sel], color='#ff7f0e',
+            zorder=-2, alpha=1, lw=3)
 
-    ax.text(0.96, 0.96-0.25, 'Prime only ($2\sigma$)', color='#1f77b4',
-            ha='right', va='top', transform=ax.transAxes,
-            bbox=dict(facecolor='white', lw=0))
-
-    ax.text(0.96, 0.89-0.25, 'Prime and Extended ($2\sigma$)', color='#ff7f0e',
-            ha='right', va='top', transform=ax.transAxes,
-            bbox=dict(facecolor='white', lw=0))
-
-    ax.set_xlabel('Year')
-    ax.set_ylabel('Uncertainty in transit time [hours]')
+    ax.set_xlabel('Year', fontsize='large')
+    ax.set_ylabel('Transit mid-time uncertainty [hours]', fontsize='large')
+    ax.set_yscale('log')
 
     ax.xaxis.set_major_locator(MaxNLocator(integer=True))
-
-    ylim = ax.get_ylim()
-    ax.vlines(primarystart.byear, min(ylim), max(ylim), color='gray',
-              zorder=-3, alpha=0.8, linestyles='--', lw=1)
-    ax.vlines(emstart.byear, min(ylim), max(ylim), color='gray', zorder=-3,
-              alpha=0.8, linestyles='--', lw=1)
-    ax.vlines(emend.byear, min(ylim), max(ylim), color='gray', zorder=-3,
-              alpha=0.8, linestyles='--', lw=1)
-
-    ax.vlines(jwstlaunch.byear, min(ylim), max(ylim), color='goldenrod',
-              zorder=-3, alpha=0.7, linestyles=':', lw=1)
-    ax.vlines(gmteltstart.byear, min(ylim), max(ylim), color='goldenrod',
-              zorder=-3, alpha=0.7, linestyles=':', lw=1)
-    ax.vlines(tmtstart.byear, min(ylim), max(ylim), color='goldenrod',
-              zorder=-3, alpha=0.7, linestyles=':', lw=1)
-
-    # x is data units, y is axes-units
-    trans = transforms.blended_transform_factory(
-            ax.transData, ax.transAxes)
-
-    ax.text(
-        primarystart.byear + (emstart.byear - primarystart.byear)/2,
-        0.97,
-        'TESS\nPrime',
-        ha='center',va='top',
-        transform=trans, bbox=dict(facecolor='white', lw=0)
-    )
-    ax.text(
-        emstart.byear + (emend.byear - emstart.byear)/2,
-        0.97,
-        'TESS\nExtended',
-        ha='center',va='top',
-        transform=trans, bbox=dict(facecolor='white', lw=0)
-    )
-
-    ax.text(
-        jwstlaunch.byear+0.05,
-        0.3,
-        'JWST launch',
-        ha='left',va='center',
-        rotation=90,
-        fontsize='small',
-        transform=trans
-    )
-    ax.text(
-        gmteltstart.byear+0.05,
-        0.23,
-        'GMT/ELT first light',
-        ha='left',va='center',
-        rotation=90,
-        fontsize='small',
-        transform=trans
-    )
-    ax.text(
-        tmtstart.byear+0.05,
-        0.25,
-        'TMT first light',
-        ha='left',va='center',
-        rotation=90,
-        fontsize='small',
-        transform=trans
-    )
 
     ax.get_yaxis().set_tick_params(which='both', direction='in')
     ax.get_xaxis().set_tick_params(which='both', direction='in')
 
-    ax.set_ylim(ylim)
+    ax.set_ylim((0.08,108))
     ax.set_xlim([2018,2029])
+
+    if np.array_equal(
+        ax.get_yticks(),
+        np.array([1.e-03, 1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02, 1.e+03,
+                  1.e+04])
+    ):
+        ax.set_yticklabels('0.001,0.01,0.1,1,10,100,1000,10000'.split(','))
 
     f.tight_layout()
     outpath = '../results/ephemeris_uncertainty.pdf'
@@ -207,7 +159,204 @@ def plot_ephemeris_uncertainty():
     print('made {}'.format(outpath))
 
 
+def get_ephemeris_uncertainty(seed=42):
+
+    primarystart = Time('2018-07-18')
+    emstart = Time('2020-06-27')
+
+    N_tra = 3 # in primary...
+    sigma_tc_single_tra = (4*u.minute).to(u.hr).value
+    period_yr = 10/365.25 # days
+    ext_transit_epoch = 73 # 73 transits later... roughly 2 years
+    _epoch = np.arange(0, 400, 1)
+
+    # epochs [0,1,2,73] are observed
+    primary_epochs = np.arange(0,N_tra)
+    epochs = np.concatenate((np.atleast_1d(primary_epochs),
+                             np.atleast_1d(np.array(ext_transit_epoch))))
+
+    # true transit times of observed transits.
+    true_transit_times = primarystart.byear + period_yr*epochs
+
+    np.random.seed(seed)
+    err_tc_hr = np.random.normal(0., sigma_tc_single_tra, size=N_tra+1)
+
+    # add errors to true times. get observed transit times (in years)
+    observed_transit_times = true_transit_times + err_tc_hr/(24*365.25)
+
+    print((observed_transit_times-true_transit_times)*365.25*24*60)
+
+    # fit t_mid_observed vs epoch. tmid = t_0 + P*E. The slope, "P" is in
+    # years; so is std_err_period.
+    (slope, intercept, r_value, p_value, std_err_period
+    ) = linregress(epochs[:-1], observed_transit_times[:-1])
+
+    # when refitting, you need to set the epoch zero-point to be the weighted
+    # mid-time of the timeseries... note: this doesn't really change anything!
+    # i did the fitting without this, and it changed nothing.
+    epoch_shifted, _ = (
+        get_epochs_given_midtimes_and_period(
+            observed_transit_times, period_yr,
+            err_t_mid=np.ones_like(epochs)*sigma_tc_single_tra/(24*365.25) ,
+            verbose=True)
+    )
+
+    (slope_EM, intercept_EM, r_value_EM, p_value_EM, std_err_period_EM
+    ) = linregress(epoch_shifted, observed_transit_times)
+
+    # true midtimes of transits at every epoch (regardless of observability)
+    t_interp_byear = primarystart.byear + _epoch*period_yr
+
+    # inferred midtimes from primary only. tmid = t_0 + period*epoch. note
+    # "1_sig" in variable names is really 2 sigma.
+    tmid_interp = intercept + slope*_epoch
+    tmid_interp_plus_1_sig = intercept + (slope+1.96*std_err_period)*_epoch
+    tmid_interp_minus_1_sig = intercept + (slope-1.96*std_err_period)*_epoch
+    # inferred midtimes from extended + primary.
+    tmid_interp_EM = intercept_EM + slope_EM*_epoch
+    tmid_interp_plus_1_sig_EM = (
+        intercept_EM + (slope_EM+1.96*std_err_period_EM)*_epoch
+    )
+    tmid_interp_minus_1_sig_EM = (
+        intercept_EM + (slope_EM-1.96*std_err_period_EM)*_epoch
+    )
+
+    # width is the predicted tmid (+2sigma) minus the predicted tmid (-2sigma).
+    prime = (
+        tmid_interp_plus_1_sig - tmid_interp_minus_1_sig
+    )*(365.25*24)
+
+    extend = (
+        tmid_interp_plus_1_sig_EM - tmid_interp_minus_1_sig_EM
+    )*(365.25*24)
+
+    sel = (extend>0) & (t_interp_byear > emstart.byear)
+
+    return t_interp_byear[prime>0], prime[prime>0], t_interp_byear[sel], extend[sel]
+
+
+def make_plot():
+
+    f, ax = plt.subplots(figsize=(6,4))
+
+    x1s, y1s, x2s, y2s = [], [], [], []
+    for seed in np.arange(40,541):
+
+        print(seed)
+        x1,y1,x2,y2 = get_ephemeris_uncertainty(seed=seed)
+        x1s.append(x1)
+        y1s.append(y1)
+        x2s.append(x2)
+        y2s.append(y2)
+
+        ax.plot(x1, y1, color='#1f77b4',
+                zorder=-3, alpha=0.1, lw=0.5)
+        ax.plot(x2, y2, color='#ff7f0e',
+                zorder=-2, alpha=0.2, lw=0.5)
+
+    # shape is nseeds x ntimes
+    x1s = np.atleast_2d(x1s)
+    y1s = np.atleast_2d(y1s)
+    x2s = np.atleast_2d(x2s)
+    y2s = np.atleast_2d(y2s)
+
+    ax.plot(np.median(x1s,axis=0), np.median(y1s,axis=0), color='black',
+            zorder=1, alpha=1, lw=4, ls='--')
+    ax.plot(np.median(x2s,axis=0), np.median(y2s,axis=0), color='black',
+            zorder=2, alpha=1, lw=4, ls='-')
+
+    ax.set_xlabel('Year', fontsize='large')
+    ax.set_ylabel('Transit mid-time uncertainty [hours]', fontsize='large')
+    ax.set_yscale('log')
+
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    ax.yaxis.set_ticks_position('both')
+    ax.xaxis.set_ticks_position('both')
+    ax.get_yaxis().set_tick_params(which='both', direction='in')
+    ax.get_xaxis().set_tick_params(which='both', direction='in')
+
+    ax.set_ylim((0.08,108))
+    ax.set_xlim([2018,2029])
+
+    if np.array_equal(
+        ax.get_yticks(),
+        np.array([1.e-03, 1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02, 1.e+03,
+                  1.e+04])
+    ):
+        ax.set_yticklabels('0.001,0.01,0.1,1,10,100,1000,10000'.split(','))
+
+    f.tight_layout()
+    outpath = '../results/ephemeris_uncertainty_randomseeds.pdf'
+    f.savefig(outpath, bbox_inches='tight')
+    print('made {}'.format(outpath))
+
+
+def make_plot():
+
+    f, ax = plt.subplots(figsize=(6,4))
+
+    x1s, y1s, x2s, y2s = [], [], [], []
+    for seed in np.arange(40,541):
+
+        print(seed)
+        x1,y1,x2,y2 = get_ephemeris_uncertainty(seed=seed)
+        x1s.append(x1)
+        y1s.append(y1)
+        x2s.append(x2)
+        y2s.append(y2)
+
+        # ax.plot(x1, y1, color='#1f77b4',
+        #         zorder=-3, alpha=0.1, lw=0.5)
+        # ax.plot(x2, y2, color='#ff7f0e',
+        #         zorder=-2, alpha=0.2, lw=0.5)
+
+    # shape is nseeds x ntimes
+    x1s = np.atleast_2d(x1s)
+    y1s = np.atleast_2d(y1s)
+    x2s = np.atleast_2d(x2s)
+    y2s = np.atleast_2d(y2s)
+
+    ax.plot(np.median(x1s,axis=0), np.median(y1s,axis=0), color='C0',
+            zorder=1, alpha=1, lw=4, ls='-')
+    ax.plot(np.median(x2s,axis=0), np.median(y2s,axis=0), color='C1',
+            zorder=2, alpha=1, lw=4, ls='-')
+
+    ax.set_xlabel('Year', fontsize='large')
+    ax.set_ylabel('Transit mid-time uncertainty [hours]', fontsize='large')
+    ax.set_yscale('log')
+
+    ax.xaxis.set_major_locator(MaxNLocator(integer=True))
+
+    ax.yaxis.set_ticks_position('both')
+    ax.xaxis.set_ticks_position('both')
+    ax.get_yaxis().set_tick_params(which='both', direction='in')
+    ax.get_xaxis().set_tick_params(which='both', direction='in')
+
+    ax.set_ylim((0.08,108))
+    ax.set_xlim([2018,2029])
+
+    if np.array_equal(
+        ax.get_yticks(),
+        np.array([1.e-03, 1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02, 1.e+03,
+                  1.e+04])
+    ):
+        ax.set_yticklabels('0.001,0.01,0.1,1,10,100,1000,10000'.split(','))
+
+    f.tight_layout()
+    outpath = '../results/ephemeris_uncertainty_medians.pdf'
+    f.savefig(outpath, bbox_inches='tight')
+    print('made {}'.format(outpath))
+
+
+
+
 if __name__=="__main__":
 
-    np.random.seed(42)
-    plot_ephemeris_uncertainty()
+    seed = 60
+
+    # plot_ephemeris_uncertainty(seed=seed)
+
+    # make_all_showed_plot()
+
+    make_plot()

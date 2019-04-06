@@ -253,8 +253,8 @@ def plot_avgd_efficiency_vs_orbit_number_plot(df):
     emstart = Time('2020-06-27')
     emend = Time('2022-10-08')
 
-    eclstart = Time('2020-09-16')
-    eclend = Time('2021-01-31')
+    eclstart = Time('2021-10-04')
+    eclend = Time('2022-02-18')
     # NOTE: we botched the start time by like an orbit in the original
     # selection window...
     eclstart += 27.3*u.day/2
@@ -272,18 +272,18 @@ def plot_avgd_efficiency_vs_orbit_number_plot(df):
     ax2.vlines(emend.byear, 0, 1, color='gray', zorder=-3, alpha=0.3,
                linestyles='--', lw=1)
 
-    ax2.text(
-        primarystart.byear + (emstart.byear - primarystart.byear)/2,
-        0.08,
-        'Prime',
-        ha='center',va='top'
-    )
-    ax2.text(
-        emstart.byear + (emend.byear - emstart.byear)/2,
-        0.08,
-        'Extended',
-        ha='center',va='top'
-    )
+    # ax2.text(
+    #     primarystart.byear + (emstart.byear - primarystart.byear)/2,
+    #     0.08,
+    #     'Prime',
+    #     ha='center',va='top'
+    # )
+    # ax2.text(
+    #     emstart.byear + (emend.byear - emstart.byear)/2,
+    #     0.08,
+    #     'Extended',
+    #     ha='center',va='top'
+    # )
     ax2.text(
         eclstart.byear + (eclend.byear - eclstart.byear)/2,
         0.3,

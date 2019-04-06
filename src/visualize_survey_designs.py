@@ -7,9 +7,9 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 
-from tessmaps.get_time_on_silicon import \
+from tessmaps.get_time_on_silicon import (
         given_cameras_get_stars_on_silicon as gcgss
-
+)
 from astropy import units as u, constants as const
 from astropy.coordinates import SkyCoord
 
@@ -512,7 +512,9 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                  'idea_7_eclc3po-8orbitq.csv',
                  'idea_8_SNEsparse.csv',
                  'idea_9_SNEshifted.csv',
-                 'idea_10_eclrotated.csv'
+                 'idea_10_eclrotated.csv',
+                 'idea_12_SNEshifted.csv',
+                 'idea_13_final_shifted.csv'
                 ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
@@ -525,7 +527,9 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                    'idea_7_eclc3po-8orbitq_eclmap.png',
                    'idea_8_SNEsparse_eclmap.png',
                    'idea_9_SNEshifted_eclmap.png',
-                   'idea_10_eclrotated_eclmap.png'
+                   'idea_10_eclrotated_eclmap.png',
+                   'idea_12_SNE_eclmap.png',
+                   'idea_13_SNE_eclmap.png'
                   ]
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
@@ -538,7 +542,9 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                     'idea_7_eclc3po-8orbitq_icrsmap.png',
                     'idea_8_SNEsparse_icrsmap.png',
                     'idea_9_SNEshifted_icrsmap.png',
-                    'idea_10_eclrotated_icrsmap.png'
+                    'idea_10_eclrotated_icrsmap.png',
+                    'idea_12_SNE_icrsmap.png',
+                    'idea_13_SNE_icrsmap.png'
                    ]
 
     titles = ['idea 1 N(6)->ecliptic(10)->S(26)->N(remain)',
@@ -551,7 +557,9 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
               'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters',
               'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18',
               'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)',
-              'idea 10 ECLROT(26)->N/S/other (TDB)'
+              'idea 10 ECLROT(26)->N/S/other (TDB)',
+              'idea 12 N(6)->ecliptic(10)->S(26)->N(remain)',
+              'idea 13 N(S)->S(28)-ecl(10)->N(remain)'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
@@ -562,7 +570,7 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
         size=0.8
 
         if for_proposal:
-            if ix not in [6,9]:
+            if ix not in [6,12]:
                 continue
             eclsavname = eclsavname.replace('.png','_forproposal.png')
             icrssavname = icrssavname.replace('.png','_forproposal.png')
@@ -663,7 +671,9 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
                  'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv',
                  'idea_7_eclc3po-8orbitq.csv',
                  'idea_8_SNEsparse.csv',
-                 'idea_9_SNEshifted.csv'
+                 'idea_9_SNEshifted.csv',
+                 'idea_12_SNEshifted.csv',
+                 'idea_13_final_shifted.csv'
                 ]
 
     eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
@@ -674,7 +684,9 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
                    'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png',
                    'idea_7_eclc3po-8orbitq_eclmap.png',
                    'idea_8_SNEsparse_eclmap.png',
-                   'idea_9_SNEshifted_eclmap.png'
+                   'idea_9_SNEshifted_eclmap.png',
+                   'idea_12_SNE_eclmap.png',
+                   'idea_13_SNE_eclmap.png'
                   ]
 
     icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
@@ -685,7 +697,9 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
                     'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
                     'idea_7_eclc3po-8orbitq_icrsmap.png',
                     'idea_8_SNEsparse_icrsmap.png',
-                    'idea_9_SNEshifted_icrsmap.png'
+                    'idea_9_SNEshifted_icrsmap.png',
+                    'idea_12_SNE_icrsmap.png',
+                    'idea_13_SNE_icrsmap.png'
                    ]
 
     titles = ['idea 1 SN->N(6)->ecliptic(10)->S(26)->N(remain)',
@@ -696,7 +710,9 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
               'idea 6 SN->ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
               'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters',
               'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18',
-              'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)'
+              'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)',
+              'idea 12 SNE',
+              'idea 13 SNE'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
@@ -706,7 +722,7 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
 
         size=0.8
         if for_proposal:
-            if ix != 8:
+            if ix != 10:
                 continue
             eclsavname = eclsavname.replace('.png','_forproposal.png')
             icrssavname = icrssavname.replace('.png','_forproposal.png')
