@@ -30,7 +30,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
              projection='mollweide',savdir='../results/',savname='mwd_0.pdf',
              overplot_galactic_plane=True, is_tess=False, is_radec=None,
              cbarbounds=None, for_proposal=False, overplot_k2_fields=False,
-             for_GRR=False):
+             for_GRR=False, plot_tess=True):
 
     '''
     args, kwargs:
@@ -148,24 +148,25 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                          s=0, lw=0, zorder=2, cmap=cmap, norm=norm,
                          rasterized=True)
 
-        max_cv = np.max(color_val)
-        for ix, cv in enumerate(np.sort(np.unique(color_val))):
-            if cv == 0:
-                continue
-            sel = color_val == cv
-            zorder = int(- max_cv - 1 + ix)
-            _ = ax.scatter(np.radians(x[sel]),np.radians(dec[sel]),
-                           c=color_val[sel], s=size,
-                           lw=0, zorder=zorder, cmap=cmap, norm=norm,
-                           marker='o',
-                           rasterized=True)
+        if plot_tess:
+            max_cv = np.max(color_val)
+            for ix, cv in enumerate(np.sort(np.unique(color_val))):
+                if cv == 0:
+                    continue
+                sel = color_val == cv
+                zorder = int(- max_cv - 1 + ix)
+                _ = ax.scatter(np.radians(x[sel]),np.radians(dec[sel]),
+                               c=color_val[sel], s=size,
+                               lw=0, zorder=zorder, cmap=cmap, norm=norm,
+                               marker='o',
+                               rasterized=True)
 
-        sel = color_val > 0
-        _ = ax.scatter(np.radians(x[~sel]),np.radians(dec[~sel]),
-                       c=color_val[~sel],
-                       s=size/4, lw=0, zorder=-50, cmap=cmap, norm=norm,
-                       marker='s',
-                       rasterized=True)
+            sel = color_val > 0
+            _ = ax.scatter(np.radians(x[~sel]),np.radians(dec[~sel]),
+                           c=color_val[~sel],
+                           s=size/4, lw=0, zorder=-50, cmap=cmap, norm=norm,
+                           marker='s',
+                           rasterized=True)
 
         # #FIXME WORKS!
         # _ = ax.scatter(np.radians(x[sel]),np.radians(dec[sel]),
@@ -491,7 +492,8 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
 
 
 def only_extended_only_primary(is_deming=False, for_proposal=False,
-                               overplot_k2_fields=False, for_GRR=False):
+                               overplot_k2_fields=False, for_GRR=False,
+                               plot_tess=True):
     """
     make plots for each extended mission, and the primary mission.
     (no merging)
@@ -584,6 +586,10 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
             eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
             icrssavname = icrssavname.replace('.png','_forproposal_k2overplot.png')
 
+        if not plot_tess:
+            eclsavname = eclsavname.replace('.png','_notess.png')
+            icrssavname = icrssavname.replace('.png','_notess.png')
+
         obsdstr = '' if not for_proposal else '_forproposal'
         obsdpath = dirnfile.replace(
             '.csv', '_coords_observed{}.csv'.format(obsdstr))
@@ -638,7 +644,7 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                  cbarbounds=cbarbounds,
                  for_proposal=for_proposal,
                  overplot_k2_fields=overplot_k2_fields,
-                 for_GRR=for_GRR)
+                 for_GRR=for_GRR, plot_tess=plot_tess)
 
         plot_mwd(nparr(df['ra'])[sel_durn],
                  nparr(df['dec'])[sel_durn],
@@ -650,10 +656,11 @@ def only_extended_only_primary(is_deming=False, for_proposal=False,
                  cbarbounds=cbarbounds,
                  for_proposal=for_proposal,
                  overplot_k2_fields=overplot_k2_fields,
-                 for_GRR=for_GRR)
+                 for_GRR=for_GRR, plot_tess=plot_tess)
 
 
-def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
+def merged_with_primary(for_proposal=False, overplot_k2_fields=False,
+                        plot_tess=True):
     """
     make plots for each extended mission, merged with the primary mission.
     """
@@ -732,6 +739,10 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
             eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
             icrssavname = icrssavname.replace('.png','_forproposal_k2overplot.png')
 
+        if not plot_tess:
+            eclsavname = eclsavname.replace('.png','_notess.png')
+            icrssavname = icrssavname.replace('.png','_notess.png')
+
         obsdstr = '' if not for_proposal else '_forproposal'
         obsdpath = dirnfile.replace(
             '.csv', '_coords_observed_merged{}.csv'.format(obsdstr))
@@ -771,7 +782,7 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
                  overplot_galactic_plane=True, is_tess=True, is_radec=False,
                  cbarbounds=cbarbounds,
                  for_proposal=for_proposal,
-                 overplot_k2_fields=overplot_k2_fields)
+                 overplot_k2_fields=overplot_k2_fields, plot_tess=plot_tess)
 
         plot_mwd(nparr(df['ra'])[sel_durn],
                  nparr(df['dec'])[sel_durn],
@@ -782,7 +793,7 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False):
                  overplot_galactic_plane=True, is_tess=True, is_radec=True,
                  cbarbounds=cbarbounds,
                  for_proposal=for_proposal,
-                 overplot_k2_fields=overplot_k2_fields)
+                 overplot_k2_fields=overplot_k2_fields, plot_tess=plot_tess)
 
 
 if __name__=="__main__":
@@ -793,6 +804,7 @@ if __name__=="__main__":
     merged=1                # make plots for merged primary + extended mission.
     for_proposal=1          # true to activate options only for the proposal
     overplot_k2_fields=1    # true to activate k2 field overplot
+    plot_tess=0             # true to activate tess field overplot
     is_deming=0             # draws points from uniform grid, for drake.
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
 
@@ -802,11 +814,13 @@ if __name__=="__main__":
         only_extended_only_primary(is_deming=is_deming,
                                    for_proposal=for_proposal,
                                    overplot_k2_fields=overplot_k2_fields,
-                                   for_GRR=for_GRR)
+                                   for_GRR=for_GRR,
+                                   plot_tess=plot_tess)
 
     if merged:
         if not is_deming:
             merged_with_primary(for_proposal=for_proposal,
-                                overplot_k2_fields=overplot_k2_fields)
+                                overplot_k2_fields=overplot_k2_fields,
+                                plot_tess=plot_tess)
         else:
             print('dont merge if is deming')
