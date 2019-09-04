@@ -12,15 +12,11 @@ Options are available to manually change in the __main__ function, at the
 bottom.
 
 The program takes as input a CSV file with the pointing strategy (field centers
-for each camera).
-
-It then picks points randomly from the celestial sphere.
-
-It then feeds these points into a coarse WCS model, which returns whether or
-not the points are on silicon, given the field centers.
-
-The number of observations each "star" (point) gets is then summed, returning
-the data needed to make the plot.
+for each camera).  It then picks points randomly from the celestial sphere.  It
+then feeds these points into a coarse WCS model, which returns whether or not
+the points are on silicon, given the field centers.  The number of observations
+each "star" (point) gets is then summed, returning the data needed to make the
+plot.
 
 ----------
 USAGE
@@ -30,7 +26,20 @@ Run:
 $ python plot_extmission_field_positions.py
 
 from the /src/ directory, and the relevant plots will be generated.  This takes
-_a while_, if many points are drawn.
+maybe ~10 minutes on the first-pass, because many points are drawn, in order to
+make the figure look good.
+
+To skip this long initialization, download the following two CSV files to the /data/ directory:
+
+    https://www.dropbox.com/s/led02qjev990wy4/idea_13_final_shifted_coords_observed_forproposal.csv?dl=0
+
+    https://www.dropbox.com/s/qepc50zc0d2j0tx/idea_13_final_shifted_coords_observed_merged_forproposal.csv?dl=0
+
+Each is ~100Mb.  These are the files that this code generates on first-pass,
+and afterward keeps "cached" to make the plots.
+
+After that run-time for me is about a minute or two (however long it takes your
+computer to scatter plot about 1 million points).
 """
 
 ###########

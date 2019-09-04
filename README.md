@@ -2,6 +2,10 @@ assorted calculations for TESS mission extension
 
 ## `/src/`
 
+* `plot_extmission_field_positions.py`: the plotting script used to make the
+  extended mission visualizations from the senior review proposal.
+  (**see the docstring for instructions**).
+
 * `visualize_survey_designs.py`: make maps (in Mollweide projection) of
   output from `tessmaps`, for possible pointing strategies of extended mission.
 
@@ -26,5 +30,5 @@ assorted calculations for TESS mission extension
 
 ## `/visualization_ext_fields/`
 
-Old code from the Bouma et al (2017) extended mission white paper used to
-generate 3d plots of different extended mission sky-tiling strategies.
+Code from the Bouma et al (2017) extended mission white paper used to generate
+3d plots of different extended mission sky-tiling strategies.
