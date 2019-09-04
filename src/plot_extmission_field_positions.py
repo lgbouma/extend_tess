@@ -1,4 +1,37 @@
 # -*- coding: utf-8 -*-
+"""
+This program plots the TESS extended mission field coverage, as proposed in the
+senior review.
+
+Author: Luke Bouma (luke@astro.princeton.edu)
+
+----------
+OVERVIEW
+
+Options are available to manually change in the __main__ function, at the
+bottom.
+
+The program takes as input a CSV file with the pointing strategy (field centers
+for each camera).
+
+It then picks points randomly from the celestial sphere.
+
+It then feeds these points into a coarse WCS model, which returns whether or
+not the points are on silicon, given the field centers.
+
+The number of observations each "star" (point) gets is then summed, returning
+the data needed to make the plot.
+
+----------
+USAGE
+
+Run:
+
+$ python plot_extmission_field_positions.py
+
+from the /src/ directory, and the relevant plots will be generated.  This takes
+_a while_, if many points are drawn.
+"""
 
 ###########
 # imports #
@@ -11,22 +44,22 @@ mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib.colors import LinearSegmentedColormap
 
+from astropy import units as u, constants as const
+from astropy.coordinates import SkyCoord
+
+from numpy import array as nparr
+
+import os, json
+
 try:
     from tessmaps.get_time_on_silicon import (
             given_cameras_get_stars_on_silicon as gcgss
     )
 except ImportError:
     raise ImportError(
-        'tessmaps is not on your path. follow install instructions at '
+        'tessmaps import failed. follow install instructions at '
         'https://github.com/lgbouma/tessmaps'
     )
-from astropy import units as u, constants as const
-from astropy.coordinates import SkyCoord
-
-from numpy import array as nparr
-
-import os
-import json
 
 ####################
 # helper functions #
@@ -160,8 +193,6 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
     if is_tess:
         # set up colormap
-        import seaborn as sns
-
         if for_proposal:
 
             # 14 color
@@ -196,7 +227,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                 'my_cmap', colors, N=len(colors))
 
         else:
-
+            import seaborn as sns
             rgbs = sns.color_palette('Paired', n_colors=12, desat=0.9)
             cmap = mpl.colors.ListedColormap(rgbs)
 
@@ -623,7 +654,7 @@ if __name__=="__main__":
     merged=1                # make plots for merged primary + extended mission.
     for_proposal=1          # true to activate options only for the proposal
     overplot_k2_fields=1    # true to activate k2 field overplot
-    plot_tess=0             # true to activate tess field overplot
+    plot_tess=1             # true to activate tess field overplot
 
     # END OPTIONS
 
