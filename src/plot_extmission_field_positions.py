@@ -559,10 +559,13 @@ def only_extended_only_primary(for_proposal=False,
         #
         # make figures in ecliptic and ICRS coordinates.
         #
-        for is_radec, outpath in zip([True,False], [eclsavname, icrssavname]):
+        for lon, lat, is_radec, outpath in zip(
+            ['ra','elon'], ['dec','elat'],
+            [True,False], [eclsavname, icrssavname]
+        ):
 
-            plot_mwd(nparr(df['elon'])[sel_durn],
-                     nparr(df['elat'])[sel_durn],
+            plot_mwd(nparr(df[lon])[sel_durn],
+                     nparr(df[lat])[sel_durn],
                      nparr(df['obs_duration'])[sel_durn],
                      origin=0, size=size, title=title,
                      projection='mollweide', savdir=savdir,
@@ -640,10 +643,13 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False,
         cbarbounds = np.arange(-1/2, 2*13.5, 1)
         sel_durn = (nparr(df['obs_duration']) >= 0)
 
-        for is_radec, outpath in zip([True,False], [eclsavname, icrssavname]):
+        for lon, lat, is_radec, outpath  in zip(
+            ['ra','elon'], ['dec','elat'],
+            [True,False], [eclsavname, icrssavname]
+        ):
 
-            plot_mwd(nparr(df['elon'])[sel_durn],
-                     nparr(df['elat'])[sel_durn],
+            plot_mwd(nparr(df[lon])[sel_durn],
+                     nparr(df[lat])[sel_durn],
                      nparr(df['obs_duration'])[sel_durn],
                      origin=0, size=size, title=title,
                      projection='mollweide', savdir=savdir,
