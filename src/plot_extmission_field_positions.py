@@ -31,9 +31,9 @@ make the figure look good.
 
 To skip this long initialization, download the following two CSV files to the /data/ directory:
 
-    https://www.dropbox.com/s/led02qjev990wy4/idea_13_final_shifted_coords_observed_forproposal.csv?dl=0
+    https://www.dropbox.com/s/led02qjev990wy4/idea_14_final_shifted_coords_observed_forproposal.csv?dl=0
 
-    https://www.dropbox.com/s/qepc50zc0d2j0tx/idea_13_final_shifted_coords_observed_merged_forproposal.csv?dl=0
+    https://www.dropbox.com/s/qepc50zc0d2j0tx/idea_14_final_shifted_coords_observed_merged_forproposal.csv?dl=0
 
 Each is ~100Mb.  These are the files that this code generates on first-pass,
 and afterward keeps "cached" to make the plots.
@@ -501,19 +501,19 @@ def only_extended_only_primary(for_proposal=False,
 
     # things to change
     filenames = [
-                 'idea_13_final_shifted.csv'
+                 'idea_14_final_shifted.csv'
                 ]
 
     eclsavnames = [
-                   'idea_13_SNE_eclmap.png'
+                   'idea_14_SNE_eclmap.png'
                   ]
 
     icrssavnames = [
-                    'idea_13_SNE_icrsmap.png'
+                    'idea_14_SNE_icrsmap.png'
                    ]
 
     titles = [
-              'idea 13 N(S)->S(28)-ecl(10)->N(remain)'
+              'idea 14 N(S)->S(28)-ecl(10)->N(remain)'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
@@ -587,19 +587,19 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False,
 
     # things to change
     filenames = [
-                 'idea_13_final_shifted.csv'
+                 'idea_14_final_shifted.csv'
                 ]
 
     eclsavnames = [
-                   'idea_13_SNE_eclmap.png'
+                   'idea_14_SNE_eclmap.png'
                   ]
 
     icrssavnames = [
-                    'idea_13_SNE_icrsmap.png'
+                    'idea_14_SNE_icrsmap.png'
                    ]
 
     titles = [
-              'idea 13 SNE'
+              'idea 14 SNE'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames ]
