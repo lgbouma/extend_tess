@@ -666,7 +666,7 @@ if __name__=="__main__":
     separated=1             # make plots for each extended mission, and the primary mission.
     merged=1                # make plots for merged primary + extended mission.
     for_proposal=1          # true to activate options only for the proposal
-    overplot_k2_fields=1    # true to activate k2 field overplot
+    overplot_k2_fields=0    # true to activate k2 field overplot
     plot_tess=1             # true to activate tess field overplot
 
     # END OPTIONS
