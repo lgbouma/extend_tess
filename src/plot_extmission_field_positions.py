@@ -82,8 +82,7 @@ def _shift_lon_get_x(lon, origin):
     return x
 
 def get_n_observations(dirnfile, outpath, n_stars, merged=False,
-                       withgaps=True,
-                       aligncelestial=False):
+                       withgaps=True):
 
     np.random.seed(42)
 
@@ -146,8 +145,7 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
         print(row['start'])
         cam_direction = row['camdirection']
 
-        onchip = gcgss(coords, cam_direction, verbose=False, withgaps=withgaps,
-                       aligncelestial=aligncelestial)
+        onchip = gcgss(coords, cam_direction, verbose=False, withgaps=withgaps)
 
         n_observations += onchip
 
