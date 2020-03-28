@@ -82,8 +82,7 @@ def _shift_lon_get_x(lon, origin):
     return x
 
 def get_n_observations(dirnfile, outpath, n_stars, merged=False,
-                       withgaps=True,
-                       aligncelestial=False):
+                       withgaps=True):
 
     np.random.seed(42)
 
@@ -146,8 +145,7 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
         print(row['start'])
         cam_direction = row['camdirection']
 
-        onchip = gcgss(coords, cam_direction, verbose=False, withgaps=withgaps,
-                       aligncelestial=aligncelestial)
+        onchip = gcgss(coords, cam_direction, verbose=False, withgaps=withgaps)
 
         n_observations += onchip
 
@@ -668,7 +666,7 @@ if __name__=="__main__":
     separated=1             # make plots for each extended mission, and the primary mission.
     merged=1                # make plots for merged primary + extended mission.
     for_proposal=1          # true to activate options only for the proposal
-    overplot_k2_fields=1    # true to activate k2 field overplot
+    overplot_k2_fields=0    # true to activate k2 field overplot
     plot_tess=1             # true to activate tess field overplot
 
     # END OPTIONS
