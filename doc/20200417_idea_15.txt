@@ -1,0 +1,16 @@
+This is the same as idea 14,
+* year 3: south (being executed)
+* year 4-5.25: north + ecl.
+
+5 sectors on ecliptic.
+
+But it corrects for the "northern" pointings from scattered light in both the
+primary and extended mission.  (as in S14-S16 and S24-S26).
+
+And it omits the small "shift" in longitude/latitude to mitigate the chip gap,
+because this is primarily just a visualization exercise and doing the shift is
+annoying.
+
+It does this in S40-S42, and also S50-S55.  Note S40-S42 and S53-S55 are the
+"S14-S16" analogs, while S50-S52 is the "S24-S26" analog. This can be seen by
+adding multiples of 13.
