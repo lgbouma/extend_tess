@@ -105,7 +105,7 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
     coords = SkyCoord(ra=ras, dec=decs, frame='icrs')
 
     if merged:
-        df_pri = pd.read_csv('../data/primary_mission.csv', sep=';')
+        df_pri = pd.read_csv('../data/primary_mission_truenorth.csv', sep=';')
         df_ext = pd.read_csv(dirnfile, sep=';')
         df = pd.concat([df_pri, df_ext])
 
@@ -376,7 +376,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         # finally, make the plot!
         for mod in np.sort(list(kep_d.keys())):
             for op in np.sort(list(kep_d[mod].keys())):
-                print(mod, op)
+                # print(mod, op)
 
                 this = kep_d[mod][op]
 
@@ -416,7 +416,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                 continue
             if cn in ['c1','c10'] and not is_radec:
                 continue
-            print(cn)
+            # print(cn)
 
             channel_ids = footprint_dictionary[cn]["channels"].keys()
 
@@ -499,19 +499,23 @@ def only_extended_only_primary(for_proposal=False,
 
     # things to change
     filenames = [
-                 'idea_14_final_shifted.csv'
+                 'primary_mission_truenorth.csv',
+                 'idea_15_final_truenorth.csv'
                 ]
 
     eclsavnames = [
-                   'idea_14_SNE_eclmap.png'
+                   'primary_mission_truenorth_eclmap.png',
+                   'idea_15_SNE_eclmap.png'
                   ]
 
     icrssavnames = [
-                    'idea_14_SNE_icrsmap.png'
+                    'primary_mission_truenorth_icrsmap.png',
+                    'idea_15_SNE_icrsmap.png'
                    ]
 
     titles = [
-              'idea 14 N(S)->S(28)-ecl(10)->N(remain)'
+              'primary truenorth',
+              'idea 15 N(S)->S(28)-ecl(10)->N(remain)'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
@@ -588,19 +592,19 @@ def merged_with_primary(for_proposal=False, overplot_k2_fields=False,
 
     # things to change
     filenames = [
-                 'idea_14_final_shifted.csv'
+                 'idea_15_final_truenorth.csv'
                 ]
 
     eclsavnames = [
-                   'idea_14_SNE_eclmap.png'
+                   'idea_15_SNE_eclmap.png'
                   ]
 
     icrssavnames = [
-                    'idea_14_SNE_icrsmap.png'
+                    'idea_15_SNE_icrsmap.png'
                    ]
 
     titles = [
-              'idea 14 SNE'
+              'idea 15 SNE'
              ]
 
     dirnfiles = [ os.path.join(datadir,fname) for fname in filenames ]
