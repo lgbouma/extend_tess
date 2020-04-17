@@ -353,10 +353,10 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                 kep_d[module][output] = {}
                 sel = (kep['module']==module) & (kep['output']==output)
 
-                _ra = list(kep.ix[sel]['ra'])
-                _dec = list(kep.ix[sel]['dec'])
-                _elon = list(kep.ix[sel]['elon'])
-                _elat = list(kep.ix[sel]['elat'])
+                _ra = list(kep[sel]['ra'])
+                _dec = list(kep[sel]['dec'])
+                _elon = list(kep[sel]['elon'])
+                _elat = list(kep[sel]['elat'])
 
                 _ra = [_ra[0], _ra[1], _ra[3], _ra[2] ]
                 _dec =  [_dec[0], _dec[1], _dec[3], _dec[2] ]
@@ -666,7 +666,7 @@ if __name__=="__main__":
     separated=1             # make plots for each extended mission, and the primary mission.
     merged=1                # make plots for merged primary + extended mission.
     for_proposal=1          # true to activate options only for the proposal
-    overplot_k2_fields=0    # true to activate k2 field overplot
+    overplot_k2_fields=1    # true to activate k2 field overplot
     plot_tess=1             # true to activate tess field overplot
 
     # END OPTIONS
