@@ -65,75 +65,71 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         # set up colormap
         import seaborn as sns
 
-        if for_proposal or for_GRR:
-            # rgbs = sns.diverging_palette(255, 133, l=60, n=12, center="dark")
-            # rgbs = sns.diverging_palette(230, 15, s=99, l=70, n=13,
-            #                              center="dark")
+        # rgbs = sns.diverging_palette(255, 133, l=60, n=12, center="dark")
+        # rgbs = sns.diverging_palette(230, 15, s=99, l=70, n=13,
+        #                              center="dark")
 
-            # # 13-color (no "0" stars)
-            # colors = ["#e7d914", "#ceb128", "#b58a3d", "#866c50", "#515263",
-            #           "#1b3876", "#002680", "#001d80", "#001480", "#000c80",
-            #           "#000880", "#000480", "#000080"]
+        # # 13-color (no "0" stars)
+        # colors = ["#e7d914", "#ceb128", "#b58a3d", "#866c50", "#515263",
+        #           "#1b3876", "#002680", "#001d80", "#001480", "#000c80",
+        #           "#000880", "#000480", "#000080"]
 
-            # 14 color
-            if len(cbarbounds) < 15:
+        # 14 color
+        if len(cbarbounds) < 15:
 
-                colors = ["#ffffff", "#e7d914", "#ceb128", "#b58a3d",
-                          "#866c50", "#515263", "#1b3876", "#002680",
-                          "#001d80", "#001480", "#000c80", "#000880",
-                          "#000480", "#000080"]
+            colors = ["#ffffff", "#e7d914", "#ceb128", "#b58a3d",
+                      "#866c50", "#515263", "#1b3876", "#002680",
+                      "#001d80", "#001480", "#000c80", "#000880",
+                      "#000480", "#000080"]
 
-            # 28 color (kind of)
-            elif len(cbarbounds) < 30:
+        # 28 color (kind of)
+        elif len(cbarbounds) < 30:
 
-                # first three orbits obsd get different colors. some difference
-                # between 1yr and 2yr too.
-                # take 1
-                colors0 = ["#ffffff", "#e7d914", "#ceb128",
-                          "#b58a3d", "#b58a3d", "#b58a3d", "#b58a3d",
-                          "#866c50", "#866c50", "#866c50", "#866c50",
-                          "#515263", "#515263", "#515263", "#515263",
-                          "#1b3876", "#1b3876", "#1b3876", "#1b3876",
-                          "#002680", "#002680", "#002680", "#002680",
-                          "#000c80", "#000880", "#000880", "#000880",
-                          "#000c80"]
+            # first three orbits obsd get different colors. some difference
+            # between 1yr and 2yr too.
+            # take 1
+            colors0 = ["#ffffff", "#e7d914", "#ceb128",
+                      "#b58a3d", "#b58a3d", "#b58a3d", "#b58a3d",
+                      "#866c50", "#866c50", "#866c50", "#866c50",
+                      "#515263", "#515263", "#515263", "#515263",
+                      "#1b3876", "#1b3876", "#1b3876", "#1b3876",
+                      "#002680", "#002680", "#002680", "#002680",
+                      "#000c80", "#000880", "#000880", "#000880",
+                      "#000c80"]
 
-                colors1 = ["#ffffff", # N=0 white
-                          "#e7d914", # N=1 pale yellow
-                          "#e7a013", # N=2 a little more saturated
-                          "#f7781d", # N=3-5 a little more saturated
-                          "#f7781d", # N=6-11 saturated orange
-                          "#f7781d", "#e86000", "#e86000",
-                          "#e86000", "#e86000", "#e86000", "#e86000",
-                          "#e80000", "#e80000", # N=12,13 saturated red
-                          "#12aee7", # N=14-20 different blue
-                          "#12aee7","#12aee7","#12aee7",
-                          "#12aee7","#12aee7","#12aee7",
-                          "#126ae7", # N=21-26 saturated blue
-                          "#126ae7", "#126ae7", "#126ae7",
-                          "#126ae7", "#126ae7", "#126ae7"]
+            colors1 = ["#ffffff", # N=0 white
+                      "#e7d914", # N=1 pale yellow
+                      "#e7a013", # N=2 a little more saturated
+                      "#f7781d", # N=3-5 a little more saturated
+                      "#f7781d", # N=6-11 saturated orange
+                      "#f7781d", "#e86000", "#e86000",
+                      "#e86000", "#e86000", "#e86000", "#e86000",
+                      "#e80000", "#e80000", # N=12,13 saturated red
+                      "#12aee7", # N=14-20 different blue
+                      "#12aee7","#12aee7","#12aee7",
+                      "#12aee7","#12aee7","#12aee7",
+                      "#126ae7", # N=21-26 saturated blue
+                      "#126ae7", "#126ae7", "#126ae7",
+                      "#126ae7", "#126ae7", "#126ae7"]
 
-                colors = ["#ffffff", # N=0 white
-                          "#84ccff", # N=1 pale blue
-                          "#35aaff", # N=2 a little more saturated
-                          "#279aea", # N=3-5 a little more saturated
-                          "#279aea", # N=6-11 more saturated blue
-                          "#279aea", "#1f77b4", "#1f77b4",
-                          "#1f77b4", "#1f77b4", "#1f77b4", "#1f77b4",
-                          "#126199", "#126199", # N=12,13 saturated blue
-                          "#ffa251", # N=14-20 light orange
-                          "#ffa251","#ffa251","#ffa251",
-                          "#ffa251","#ffa251","#ffa251",
-                          "#ff7f0e", # N=21-26 saturated orange
-                          "#ff7f0e", "#ff7f0e", "#ff7f0e",
-                          "#ff7f0e", "#ff7f0e", "#ff7f0e"]
+            colors = ["#ffffff", # N=0 white
+                      "#84ccff", # N=1 pale blue
+                      "#35aaff", # N=2 a little more saturated
+                      "#279aea", # N=3-5 a little more saturated
+                      "#279aea", # N=6-11 more saturated blue
+                      "#279aea", "#1f77b4", "#1f77b4",
+                      "#1f77b4", "#1f77b4", "#1f77b4", "#1f77b4",
+                      "#126199", "#126199", # N=12,13 saturated blue
+                      "#ffa251", # N=14-20 light orange
+                      "#ffa251","#ffa251","#ffa251",
+                      "#ffa251","#ffa251","#ffa251",
+                      "#ff7f0e", # N=21-26 saturated orange
+                      "#ff7f0e", "#ff7f0e", "#ff7f0e",
+                      "#ff7f0e", "#ff7f0e", "#ff7f0e"]
 
             from matplotlib.colors import LinearSegmentedColormap
             cmap = LinearSegmentedColormap.from_list(
                 'my_cmap', colors, N=len(colors))
-        else:
-            rgbs = sns.color_palette('Paired', n_colors=12, desat=0.9)
-            cmap = mpl.colors.ListedColormap(rgbs)
 
         if isinstance(cbarbounds,np.ndarray):
             bounds=cbarbounds
@@ -265,10 +261,10 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                 kep_d[module][output] = {}
                 sel = (kep['module']==module) & (kep['output']==output)
 
-                _ra = list(kep.ix[sel]['ra'])
-                _dec = list(kep.ix[sel]['dec'])
-                _elon = list(kep.ix[sel]['elon'])
-                _elat = list(kep.ix[sel]['elat'])
+                _ra = list(kep.loc[sel, 'ra'])
+                _dec = list(kep.loc[sel, 'dec'])
+                _elon = list(kep.loc[sel, 'elon'])
+                _elat = list(kep.loc[sel, 'elat'])
 
                 _ra = [_ra[0], _ra[1], _ra[3], _ra[2] ]
                 _dec =  [_dec[0], _dec[1], _dec[3], _dec[2] ]
@@ -400,9 +396,8 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
 
 
-def get_n_observations(dirnfile, outpath, n_stars, merged=False,
-                       is_deming=False, withgaps=True,
-                       aligncelestial=False):
+def get_n_observations(sector_interval, dirnfile, outpath, n_stars, merged=False,
+                       withgaps=True, aligncelestial=False):
 
     np.random.seed(42)
 
@@ -419,29 +414,14 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
     theta = (2*np.pi*rand0 * u.rad).to(u.deg).value
     phi = (np.arccos(2*rand1 - 1) * u.rad).to(u.deg).value - 90
 
-    if is_deming:
-        x, y = np.meshgrid(
-            np.arange(-90,91,1),
-            np.arange(0,361,1),
-            indexing='ij'
-        )
-        # dumb
-        theta = np.array(y.flatten())
-        phi = np.array(x.flatten())
-        withgaps=False
-
     ras = theta*u.deg
     decs = phi*u.deg
 
     coords = SkyCoord(ra=ras, dec=decs, frame='icrs')
 
-    if merged:
-        df_pri = pd.read_csv('../data/primary_mission.csv', sep=';')
-        df_ext = pd.read_csv(dirnfile, sep=';')
-        df = pd.concat([df_pri, df_ext])
-
-    else:
-        df = pd.read_csv(dirnfile, sep=';')
+    rdf = pd.read_csv(dirnfile, sep=',')
+    sel = (rdf.S >= sector_interval[0]) & (rdf.S <= sector_interval[1])
+    df = rdf[sel]
 
     lats = nparr([
         nparr(df['cam1_elat']),
@@ -473,7 +453,7 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
 
     for ix, row in df.iterrows():
 
-        print(row['start'])
+        print(row['Start(UTC)'])
         cam_direction = row['camdirection']
 
         onchip = gcgss(coords, cam_direction, verbose=False, withgaps=withgaps,
@@ -491,336 +471,113 @@ def get_n_observations(dirnfile, outpath, n_stars, merged=False,
     print('saved {}'.format(outpath))
 
 
-def only_extended_only_primary(is_deming=False, for_proposal=False,
-                               overplot_k2_fields=False, for_GRR=False,
-                               plot_tess=True):
-    """
-    make plots for each extended mission, and the primary mission.
-    (no merging)
-    """
+def make_pointing_map(
+    sector_interval, for_proposal=False, overplot_k2_fields=False,
+    plot_tess=True
+):
 
     datadir = '../data/'
-    savdir = '../results/visualize_survey_designs/'
+    savdir = '../results/visualize_survey_designs/EM2_SENIOR_REVIEW'
     orbit_duration_days = 1/2 #27.32 / 2
 
-    # things to change
-    filenames = ['idea_1_SN_ecliptic.csv',
-                 'idea_2_SNSNS_hemi.csv',
-                 'idea_3_SNNSN_hemi.csv',
-                 'idea_4_ecliptic_and_C3PO_quarters.csv',
-                 'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1.csv',
-                 'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv',
-                 'primary_mission.csv',
-                 'idea_7_eclc3po-8orbitq.csv',
-                 'idea_8_SNEsparse.csv',
-                 'idea_9_SNEshifted.csv',
-                 'idea_10_eclrotated.csv',
-                 'idea_12_SNEshifted.csv',
-                 'idea_13_final_shifted.csv'
-                ]
+    # NOTE: this will be updated. em2_v00.csv for instance, is made by
+    # src.convert_vanderspek_to_bouma_format.py
+    NAME_STRING = 'em2_v00'
 
-    eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
-                   'idea_2_SNSNS_hemi_eclmap.png',
-                   'idea_3_SNNSN_eclmap.png',
-                   'idea_4_ecliptic_and_C3PO_quarters_eclmap.png',
-                   'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_eclmap.png',
-                   'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png',
-                   'primary_mission_eclmap.png',
-                   'idea_7_eclc3po-8orbitq_eclmap.png',
-                   'idea_8_SNEsparse_eclmap.png',
-                   'idea_9_SNEshifted_eclmap.png',
-                   'idea_10_eclrotated_eclmap.png',
-                   'idea_12_SNE_eclmap.png',
-                   'idea_13_SNE_eclmap.png'
-                  ]
+    filename = f'{NAME_STRING}.csv'
+    sectorstr = f'S{sector_interval[0]}_S{sector_interval[1]}'
+    eclsavname = f'{NAME_STRING}_{sectorstr}.png'
+    icrssavname = f'{NAME_STRING}_{sectorstr}_icrs.png'
+    title = ''
+    dirnfile = os.path.join(datadir, filename)
 
-    icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
-                    'idea_2_SNSNS_hemi_icrsmap.png',
-                    'idea_3_SNNSN_icrsmap.png',
-                    'idea_4_ecliptic_and_C3PO_quarters_icrsmap.png',
-                    'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_icrsmap.png',
-                    'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
-                    'primary_mission_icrsmap.png',
-                    'idea_7_eclc3po-8orbitq_icrsmap.png',
-                    'idea_8_SNEsparse_icrsmap.png',
-                    'idea_9_SNEshifted_icrsmap.png',
-                    'idea_10_eclrotated_icrsmap.png',
-                    'idea_12_SNE_icrsmap.png',
-                    'idea_13_SNE_icrsmap.png'
-                   ]
+    size=0.8
 
-    titles = ['idea 1 N(6)->ecliptic(10)->S(26)->N(remain)',
-              'idea 2 S(26)->N(28)->S(remain)',
-              'idea 3 N(26)->S(26)->N(remain)',
-              'idea 4 ecl(10) + alternate C3PO 6 orbit quarters',
-              'idea 5 ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
-              'idea 6 ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
-              'primary mission',
-              'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters',
-              'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18',
-              'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)',
-              'idea 10 ECLROT(26)->N/S/other (TDB)',
-              'idea 12 N(6)->ecliptic(10)->S(26)->N(remain)',
-              'idea 13 N(S)->S(28)-ecl(10)->N(remain)'
-             ]
+    if for_proposal:
+        eclsavname = eclsavname.replace('.png','_forproposal.png')
+        icrssavname = icrssavname.replace('.png','_forproposal.png')
+        size=0.5
 
-    dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
+    if overplot_k2_fields:
+        eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
+        icrssavname = icrssavname.replace('.png','_forproposal_k2overplot.png')
 
-    for ix, dirnfile, eclsavname, icrssavname, title in zip(
-        range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
+    if not plot_tess:
+        eclsavname = eclsavname.replace('.png','_notess.png')
+        icrssavname = icrssavname.replace('.png','_notess.png')
 
-        size=0.8
+    obsdstr = '' if not for_proposal else '_forproposal'
+    obsdpath = dirnfile.replace(
+        '.csv', f'_coords_observed{obsdstr}_{sectorstr}.csv'
+    )
 
+    if not os.path.exists(obsdpath):
+        # takes about 1 minute per strategy
         if for_proposal:
-            if ix not in [6,12]:
-                continue
-            eclsavname = eclsavname.replace('.png','_forproposal.png')
-            icrssavname = icrssavname.replace('.png','_forproposal.png')
-            size=0.5
+            npts = 12e5
+        else:
+            npts = 1e4
 
-        if for_GRR:
-            if ix not in [10]:
-                continue
+        get_n_observations(sector_interval, dirnfile, obsdpath, int(npts))
 
-        if overplot_k2_fields:
-            eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
-            icrssavname = icrssavname.replace('.png','_forproposal_k2overplot.png')
+    df = pd.read_csv(obsdpath, sep=';')
+    df['obs_duration'] = orbit_duration_days*df['n_observations']
 
-        if not plot_tess:
-            eclsavname = eclsavname.replace('.png','_notess.png')
-            icrssavname = icrssavname.replace('.png','_notess.png')
+    #FIXME
+    # cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
+    # sel_durn = (nparr(df['obs_duration']) > 0)
+    #FIXME
 
-        obsdstr = '' if not for_proposal else '_forproposal'
-        obsdpath = dirnfile.replace(
-            '.csv', '_coords_observed{}.csv'.format(obsdstr))
+    # # worked pre 20190131
+    # cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
+    # sel_durn = (nparr(df['obs_duration']) >= 0)
 
-        if is_deming:
-            obsdpath = dirnfile.replace('.csv', '_coords_observed_for_drake.csv')
-            if ix != 9:
-                continue
+    # post 20190131
+    #cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
+    cbarbounds = np.arange(-1/2, 27, 1) #FIXME
 
-            eclsavname = eclsavname.replace('.png','_for_drake.png')
-            icrssavname = icrssavname.replace('.png','_for_drake.png')
+    sel_durn = (nparr(df['obs_duration']) >= 0)
 
-        if not os.path.exists(obsdpath):
-            # takes about 1 minute per strategy
-            if for_proposal:
-                npts = 12e5
-            else:
-                npts = 1e5
+    plot_mwd(nparr(df['elon'])[sel_durn],
+             nparr(df['elat'])[sel_durn],
+             nparr(df['obs_duration'])[sel_durn],
+             origin=0, size=size, title=title,
+             projection='mollweide', savdir=savdir,
+             savname=eclsavname,
+             overplot_galactic_plane=True, is_tess=True, is_radec=False,
+             cbarbounds=cbarbounds,
+             for_proposal=for_proposal,
+             overplot_k2_fields=overplot_k2_fields,
+             plot_tess=plot_tess)
 
-            if for_GRR:
-                get_n_observations(dirnfile, obsdpath, int(npts),
-                                   is_deming=is_deming, aligncelestial=True)
-            else:
-                get_n_observations(dirnfile, obsdpath, int(npts),
-                                   is_deming=is_deming)
-
-        df = pd.read_csv(obsdpath, sep=';')
-        df['obs_duration'] = orbit_duration_days*df['n_observations']
-
-        #FIXME
-        # cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
-        # sel_durn = (nparr(df['obs_duration']) > 0)
-        #FIXME
-
-        # # worked pre 20190131
-        # cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
-        # sel_durn = (nparr(df['obs_duration']) >= 0)
-
-        # post 20190131
-        #cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
-        cbarbounds = np.arange(-1/2, 27, 1) #FIXME
-
-        sel_durn = (nparr(df['obs_duration']) >= 0)
-
-        plot_mwd(nparr(df['elon'])[sel_durn],
-                 nparr(df['elat'])[sel_durn],
-                 nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=size, title=title,
-                 projection='mollweide', savdir=savdir,
-                 savname=eclsavname,
-                 overplot_galactic_plane=True, is_tess=True, is_radec=False,
-                 cbarbounds=cbarbounds,
-                 for_proposal=for_proposal,
-                 overplot_k2_fields=overplot_k2_fields,
-                 for_GRR=for_GRR, plot_tess=plot_tess)
-
-        plot_mwd(nparr(df['ra'])[sel_durn],
-                 nparr(df['dec'])[sel_durn],
-                 nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=size, title=title,
-                 projection='mollweide', savdir=savdir,
-                 savname=icrssavname,
-                 overplot_galactic_plane=True, is_tess=True, is_radec=True,
-                 cbarbounds=cbarbounds,
-                 for_proposal=for_proposal,
-                 overplot_k2_fields=overplot_k2_fields,
-                 for_GRR=for_GRR, plot_tess=plot_tess)
-
-
-def merged_with_primary(for_proposal=False, overplot_k2_fields=False,
-                        plot_tess=True):
-    """
-    make plots for each extended mission, merged with the primary mission.
-    """
-
-    datadir = '../data/'
-    savdir = '../results/visualize_survey_designs/merged_with_primary/'
-    orbit_duration_days = 1/2 #27.32 / 2
-
-    # things to change
-    filenames = ['idea_1_SN_ecliptic.csv',
-                 'idea_2_SNSNS_hemi.csv',
-                 'idea_3_SNNSN_hemi.csv',
-                 'idea_4_ecliptic_and_C3PO_quarters.csv',
-                 'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1.csv',
-                 'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2.csv',
-                 'idea_7_eclc3po-8orbitq.csv',
-                 'idea_8_SNEsparse.csv',
-                 'idea_9_SNEshifted.csv',
-                 'idea_12_SNEshifted.csv',
-                 'idea_13_final_shifted.csv'
-                ]
-
-    eclsavnames = ['idea_1_SN_ecliptic_eclmap.png',
-                   'idea_2_SNSNS_hemi_eclmap.png',
-                   'idea_3_SNNSN_eclmap.png',
-                   'idea_4_ecliptic_and_C3PO_quarters_eclmap.png',
-                   'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_eclmap.png',
-                   'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_eclmap.png',
-                   'idea_7_eclc3po-8orbitq_eclmap.png',
-                   'idea_8_SNEsparse_eclmap.png',
-                   'idea_9_SNEshifted_eclmap.png',
-                   'idea_12_SNE_eclmap.png',
-                   'idea_13_SNE_eclmap.png'
-                  ]
-
-    icrssavnames = ['idea_1_SN_ecliptic_icrsmap.png',
-                    'idea_2_SNSNS_hemi_icrsmap.png',
-                    'idea_3_SNNSN_icrsmap.png',
-                    'idea_4_ecliptic_and_C3PO_quarters_icrsmap.png',
-                    'idea_5_ecliptic_and_C3PO_quarters_thru_EM2yr1_icrsmap.png',
-                    'idea_6_ecliptic_and_C3PO_quarters_thru_EM2yr2_icrsmap.png',
-                    'idea_7_eclc3po-8orbitq_icrsmap.png',
-                    'idea_8_SNEsparse_icrsmap.png',
-                    'idea_9_SNEshifted_icrsmap.png',
-                    'idea_12_SNE_icrsmap.png',
-                    'idea_13_SNE_icrsmap.png'
-                   ]
-
-    titles = ['idea 1 SN->N(6)->ecliptic(10)->S(26)->N(remain)',
-              'idea 2 SN->S(26)->N(28)->S(remain)',
-              'idea 3 SN->N(26)->S(26)->N(remain)',
-              'idea 4 SN->ecl(10) + alternate C3PO 6 orbit quarters',
-              'idea 5 SN->ecl(10) + C3PO 6 orbit alternating, ->yr1 of EM2',
-              'idea 6 SN->ecl(10) + C3PO 6 orbit alternating, ->yr2 of EM2',
-              'idea 7 SN->ecl(10) + alternate C3PO 8 orbit quarters',
-              'idea 8 SN->N6->ecl2->N2->ecl2->N2->ecl2->S26->N18',
-              'idea 9 (shifted; avoids gaps) N(6)->ECL(10)->S(26)->N(remain)',
-              'idea 12 SNE',
-              'idea 13 SNE'
-             ]
-
-    dirnfiles = [ os.path.join(datadir,fname) for fname in filenames]
-
-    for ix, dirnfile, eclsavname, icrssavname, title in zip(
-        range(len(titles)), dirnfiles, eclsavnames, icrssavnames, titles):
-
-        size=0.8
-        if for_proposal:
-            if ix != 10:
-                continue
-            eclsavname = eclsavname.replace('.png','_forproposal.png')
-            icrssavname = icrssavname.replace('.png','_forproposal.png')
-            size=0.5
-
-        if overplot_k2_fields:
-            eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
-            icrssavname = icrssavname.replace('.png','_forproposal_k2overplot.png')
-
-        if not plot_tess:
-            eclsavname = eclsavname.replace('.png','_notess.png')
-            icrssavname = icrssavname.replace('.png','_notess.png')
-
-        obsdstr = '' if not for_proposal else '_forproposal'
-        obsdpath = dirnfile.replace(
-            '.csv', '_coords_observed_merged{}.csv'.format(obsdstr))
-
-        if not os.path.exists(obsdpath):
-            # takes about 1 minute per strategy
-            if for_proposal:
-                npts = 12e5
-            else:
-                npts = 2e5
-            get_n_observations(dirnfile, obsdpath, int(npts), merged=True)
-
-        df = pd.read_csv(obsdpath, sep=';')
-        df['obs_duration'] = orbit_duration_days*df['n_observations']
-
-        #FIXME
-        # cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
-        # sel_durn = (nparr(df['obs_duration']) > 0)
-        #FIXME
-
-        # # worked pre 20190131
-        # cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
-        # sel_durn = (nparr(df['obs_duration']) >= 0)
-
-        # post 20190131
-        #cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
-        cbarbounds = np.arange(-1/2, 2*13.5, 1)
-        sel_durn = (nparr(df['obs_duration']) >= 0)
-
-
-        plot_mwd(nparr(df['elon'])[sel_durn],
-                 nparr(df['elat'])[sel_durn],
-                 nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=size, title=title,
-                 projection='mollweide', savdir=savdir,
-                 savname=eclsavname,
-                 overplot_galactic_plane=True, is_tess=True, is_radec=False,
-                 cbarbounds=cbarbounds,
-                 for_proposal=for_proposal,
-                 overplot_k2_fields=overplot_k2_fields, plot_tess=plot_tess)
-
-        plot_mwd(nparr(df['ra'])[sel_durn],
-                 nparr(df['dec'])[sel_durn],
-                 nparr(df['obs_duration'])[sel_durn],
-                 origin=0, size=size, title=title,
-                 projection='mollweide', savdir=savdir,
-                 savname=icrssavname,
-                 overplot_galactic_plane=True, is_tess=True, is_radec=True,
-                 cbarbounds=cbarbounds,
-                 for_proposal=for_proposal,
-                 overplot_k2_fields=overplot_k2_fields, plot_tess=plot_tess)
+    plot_mwd(nparr(df['ra'])[sel_durn],
+             nparr(df['dec'])[sel_durn],
+             nparr(df['obs_duration'])[sel_durn],
+             origin=0, size=size, title=title,
+             projection='mollweide', savdir=savdir,
+             savname=icrssavname,
+             overplot_galactic_plane=True, is_tess=True, is_radec=True,
+             cbarbounds=cbarbounds,
+             for_proposal=for_proposal,
+             overplot_k2_fields=overplot_k2_fields,
+             plot_tess=plot_tess)
 
 
 if __name__=="__main__":
 
     # BEGIN OPTIONS
-
-    separated=1             # make plots for each extended mission, and the primary mission.
-    merged=1                # make plots for merged primary + extended mission.
-    for_proposal=1          # true to activate options only for the proposal
+    for_proposal=0          # false to debug
     overplot_k2_fields=1    # true to activate k2 field overplot
-    plot_tess=0             # true to activate tess field overplot
-    is_deming=0             # draws points from uniform grid, for drake.
+    plot_tess=1             # true to activate tess field overplot
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
-
+    # define intervals of plots you want to make
+    sector_intervals = [(1,26), (27,56), (57,97), (1,97), (1,56)]
     # END OPTIONS
 
-    if separated:
-        only_extended_only_primary(is_deming=is_deming,
-                                   for_proposal=for_proposal,
-                                   overplot_k2_fields=overplot_k2_fields,
-                                   for_GRR=for_GRR,
-                                   plot_tess=plot_tess)
-
-    if merged:
-        if not is_deming:
-            merged_with_primary(for_proposal=for_proposal,
-                                overplot_k2_fields=overplot_k2_fields,
-                                plot_tess=plot_tess)
-        else:
-            print('dont merge if is deming')
+    for sector_interval in sector_intervals:
+        make_pointing_map(
+            sector_interval,
+            for_proposal=for_proposal,
+            overplot_k2_fields=overplot_k2_fields,
+            plot_tess=plot_tess
+        )
