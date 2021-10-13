@@ -112,7 +112,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                       "#126ae7", "#126ae7", "#126ae7",
                       "#126ae7", "#126ae7", "#126ae7"]
 
-            colors = ["#ffffff", # N=0 white
+            colors2 = ["#ffffff", # N=0 white
                       "#84ccff", # N=1 pale blue
                       "#35aaff", # N=2 a little more saturated
                       "#279aea", # N=3-5 a little more saturated
@@ -126,6 +126,23 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                       "#ff7f0e", # N=21-26 saturated orange
                       "#ff7f0e", "#ff7f0e", "#ff7f0e",
                       "#ff7f0e", "#ff7f0e", "#ff7f0e"]
+
+            colors = ["#ffffff", # N=0 white
+                      "#84ccff", # N=1 pale blue
+                      "#35aaff", # N=2 a little more saturated
+                      "#279aea", # N=3-5 a little more saturated
+                      "#279aea", # N=6-11 more saturated blue
+                      "#279aea", "#1f77b4", "#1f77b4",
+                      "#1f77b4", "#1f77b4", "#1f77b4", "#1f77b4",
+                      "#126199", "#126199", # N=12,13 saturated blue
+                      "#ffa251", # N=14-20 light orange
+                      "#ffa251","#ffa251","#ffa251",
+                      "#ffa251","#ffa251","#ffa251",
+                      "#ff7f0e", # N=21-26 saturated orange
+                      "#ff7f0e", "#ff7f0e", "#ff7f0e",
+                      "#ff7f0e", "#ff7f0e", "#ff7f0e",
+                      "#16E977" # N>=27 lime green
+                     ]
 
             from matplotlib.colors import LinearSegmentedColormap
             cmap = LinearSegmentedColormap.from_list(
@@ -188,8 +205,14 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
             #ylabels = list(map(str,np.round(27.32*(np.arange(0,27)),1)))
             #ylabels[-1] = '$\geq \! 710$'
 
+            # NOTE: default
             ticks = (np.arange(-1,26)+1)
             ylabels = list(map(str,np.round((np.arange(0,27)),1)))
+
+            ticks = (np.arange(-1,27)+1)
+            ticks[-1] = (26.5 + 39.5) / 2
+            ylabels = list(map(str,np.round((np.arange(0,28)),1)))
+            ylabels[-1] = '$\geq \! 27$'
 
 
         cbar = fig.colorbar(cax, cmap=cmap, norm=norm, boundaries=bounds,
@@ -478,7 +501,7 @@ def make_pointing_map(
 
     datadir = '../data/'
     savdir = '../results/visualize_survey_designs/EM2_SENIOR_REVIEW'
-    orbit_duration_days = 1/2 #27.32 / 2
+    orbit_duration_days = 1 #27.32 / 2
 
     # NOTE: this will be updated. em2_v00.csv for instance, is made by
     # src.convert_vanderspek_to_bouma_format.py
@@ -523,18 +546,13 @@ def make_pointing_map(
     df = pd.read_csv(obsdpath, sep=';')
     df['obs_duration'] = orbit_duration_days*df['n_observations']
 
-    #FIXME
-    # cbarbounds = np.arange(27.32/2, 13.5*27.32, 27.32)
-    # sel_durn = (nparr(df['obs_duration']) > 0)
-    #FIXME
+    # NOTE: default
+    cbarbounds = np.arange(-1/2, 27, 1)
 
-    # # worked pre 20190131
-    # cbarbounds = np.arange(-27.32/2, 13.5*27.32, 27.32)
-    # sel_durn = (nparr(df['obs_duration']) >= 0)
-
-    # post 20190131
-    #cbarbounds = np.arange(-27.32/2, 2*13.5*27.32, 27.32)
-    cbarbounds = np.arange(-1/2, 27, 1) #FIXME
+    # NOTE: new
+    cbarbounds = list(np.arange(-1/2, 27, 1))
+    cbarbounds.append(39.5)
+    cbarbounds = np.array(cbarbounds)
 
     sel_durn = (nparr(df['obs_duration']) >= 0)
 
@@ -566,7 +584,7 @@ def make_pointing_map(
 if __name__=="__main__":
 
     # BEGIN OPTIONS
-    for_proposal=0          # false to debug
+    for_proposal=1          # false to debug
     overplot_k2_fields=1    # true to activate k2 field overplot
     plot_tess=1             # true to activate tess field overplot
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
