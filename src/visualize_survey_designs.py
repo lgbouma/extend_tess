@@ -6,6 +6,7 @@ import numpy as np, pandas as pd
 import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
+from matplotlib import cm
 
 from tessmaps.get_time_on_silicon import (
         given_cameras_get_stars_on_silicon as gcgss
@@ -135,18 +136,39 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                       "#279aea", "#1f77b4", "#1f77b4",
                       "#1f77b4", "#1f77b4", "#1f77b4", "#1f77b4",
                       "#126199", "#126199", # N=12,13 saturated blue
-                      "#ffa251", # N=14-20 light orange
-                      "#ffa251","#ffa251","#ffa251",
-                      "#ffa251","#ffa251","#ffa251",
-                      "#ff7f0e", # N=21-26 saturated orange
-                      "#ff7f0e", "#ff7f0e", "#ff7f0e",
-                      "#ff7f0e", "#ff7f0e", "#ff7f0e",
-                      "#16E977" # N>=27 lime green
+                      #"#ffa251", # N=14-20 light orange
+                      #"#ffa251","#ffa251","#ffa251",
+                      #"#ffa251","#ffa251","#ffa251",
+                      #"#ff7f0e", # N=21-26 saturated orange
+                      #"#ff7f0e", "#ff7f0e", "#ff7f0e",
+                      #"#ff7f0e", "#ff7f0e", "#ff7f0e",
+                      #"#16E977" # N>=27 lime green
+                      "#0a3a5c", # N=14-20 dark blue
+                      "#0a3a5c","#0a3a5c","#0a3a5c",
+                      "#0a3a5c","#0a3a5c","#0a3a5c",
+                      "#07273d", # N=21-26 saturated blue
+                      "#07273d", "#07273d", "#07273d",
+                      "#07273d", "#07273d", "#07273d",
+                      "#000000" # N>=27 black
                      ]
 
-            from matplotlib.colors import LinearSegmentedColormap
+            from matplotlib.colors import (
+                LinearSegmentedColormap, ListedColormap
+            )
+
+            #METHOD 1: custom cmap
             cmap = LinearSegmentedColormap.from_list(
-                'my_cmap', colors, N=len(colors))
+                'my_cmap', colors, N=len(colors)
+            )
+
+            # # METHOD 2 (pre-baked)
+            # N = len(colors)
+            # colormap = cm.get_cmap('Blues', N)
+            # newcolors = colormap(np.linspace(0.15, 1, N))
+            # white = np.array([0,0,0,0])
+            # newcolors[:1, :] = white
+            # cmap = ListedColormap(newcolors)
+
 
         if isinstance(cbarbounds,np.ndarray):
             bounds=cbarbounds
@@ -245,8 +267,10 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         else:
             gplane_x = _shift_lon_get_x(gplane_elon, origin)
             gplane_dec = gplane_elat
-        ax.scatter(np.radians(gplane_x),np.radians(gplane_dec),
-                   c='lightgray', s=0.2, zorder=3, rasterized=True)
+        _x, _y = np.radians(gplane_x),np.radians(gplane_dec)
+        s = np.argsort(_x)
+        ax.plot(_x[s], _y[s], c='lightgray', lw=0.5, zorder=3, ls='--',
+                alpha=0.7, rasterized=True)
         gcenter = SkyCoord('17h45m40.04s', '-29d00m28.1s', frame='icrs')
         gcenter_ra, gcenter_dec = gcenter.icrs.ra.value, gcenter.icrs.dec.value
         gcenter_elon = gcenter.barycentrictrueecliptic.lon.value
@@ -257,7 +281,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
             gcenter_x = _shift_lon_get_x(np.array(gcenter_elon), origin)
             gcenter_dec = gcenter_elat
         ax.scatter(np.radians(gcenter_x),np.radians(gcenter_dec),
-                   c='black', s=2, zorder=4, marker='X')
+                   c='black', s=5, zorder=4, marker='x', linewidth=0.5 )
         ax.text(np.radians(gcenter_x), np.radians(gcenter_dec), 'GC',
                 fontsize='x-small', ha='left', va='top')
         ##########
