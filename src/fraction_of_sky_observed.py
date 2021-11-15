@@ -51,10 +51,14 @@ if __name__=="__main__":
     # this?  What fraction of the sky that was observed during the Prime
     # Mission was (or is scheduled to be) re-observed during EM1?
 
-    sel = em1[em1.n_observations>0].index.isin(pri[pri.n_observations>0].index)
+    sel = (
+        (em1.n_observations > 0)
+        &
+        (pri.n_observations > 0)
+    )
 
     n_pri = len(pri[pri.n_observations>0])
-    n_reobs_em1 = len(em1[em1.n_observations>0][sel])
+    n_reobs_em1 = len(em1[sel])
 
     print(10*'-')
     q1 = (
@@ -70,10 +74,14 @@ if __name__=="__main__":
     # this?  What fraction of the sky that was not observed during the PM was
     # or will be observed during EM1?
 
-    sel = em1[em1.n_observations>0].index.isin(pri[pri.n_observations==0].index)
+    sel = (
+        (em1.n_observations > 0)
+        &
+        (pri.n_observations == 0)
+    )
 
     n_not_obs_pri = len(pri[pri.n_observations==0])
-    n_obs_em1_but_not_pri = len(em1[em1.n_observations>0][sel])
+    n_obs_em1_but_not_pri = len(em1[sel])
 
     print(10*'-')
     q2 = (
@@ -83,4 +91,40 @@ if __name__=="__main__":
     print('{:s}A: {:.2f}% of sky that was not observed during Prime Mission '
           'has been or is scheduled to be re-observed during EM1'.
           format(q2, 100*n_obs_em1_but_not_pri/n_not_obs_pri))
+    print(10*'-')
 
+
+    ##########################################
+    q3 = (
+        'What fraction of the sky has been observed twice with at least 12 '
+        'months separation?'
+    )
+    n_12mo_pri = len(pri[pri.n_observations>=12])
+
+    # in EM1: means reobserved, or n_obs>=12 in primary.
+    sel = (
+        ((em1.n_observations > 0) & (pri.n_observations > 0)) # reobserved
+        |
+        (pri.n_observations >= 12) # n_obs>=12 in primary
+    )
+    n_12mo_em1 = len(em1[sel])
+
+    # in EM2: means reobserved from either EM1 or EM2, or n_obs>=12 in primary.
+    sel = (
+        ((em2.n_observations > 0) & (pri.n_observations > 0)) # reobserved pri->EM2
+        |
+        ((em2.n_observations > 0) & (em1.n_observations > 0)) # reobserved EM1->EM2
+        |
+        ((em1.n_observations > 0) & (pri.n_observations > 0)) # reobserved pri->EM1
+        |
+        (pri.n_observations >= 12) # n_obs>=12 in primary
+    )
+    n_12mo_em2 = len(em1[sel])
+
+    print(q3)
+    print(
+        "A:\n"
+        f"Primary mission S1-S26: {100*n_12mo_pri/n_stars:.2f}% \n"
+        f"Primary+EM1 S1-S56: {100*n_12mo_em1/n_stars:.2f}% \n"
+        f"Primary+EM1+EM2 S1-S97: {100*n_12mo_em2/n_stars:.2f}% \n"
+    )
