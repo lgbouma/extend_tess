@@ -7,6 +7,7 @@ import matplotlib as mpl
 mpl.use('Agg')
 import matplotlib.pyplot as plt
 from matplotlib import cm
+import matplotlib.patheffects as pe
 
 from tessmaps.get_time_on_silicon import (
         given_cameras_get_stars_on_silicon as gcgss
@@ -242,8 +243,9 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                             ticks=ticks,
                             orientation='vertical')
 
-        cbar.ax.set_yticklabels(ylabels, fontsize='x-small')
-        cbar.set_label('Lunar months observed', rotation=270, labelpad=10)
+        cbar.ax.set_yticklabels(ylabels, fontsize='xx-small')
+        cbar.set_label('Lunar months observed', rotation=270, labelpad=10,
+                       fontsize='x-small')
         cbar.ax.tick_params(direction='in')
 
     else:
@@ -280,10 +282,15 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         else:
             gcenter_x = _shift_lon_get_x(np.array(gcenter_elon), origin)
             gcenter_dec = gcenter_elat
+
         ax.scatter(np.radians(gcenter_x),np.radians(gcenter_dec),
-                   c='black', s=5, zorder=4, marker='x', linewidth=0.5 )
-        ax.text(np.radians(gcenter_x), np.radians(gcenter_dec), 'GC',
-                fontsize='x-small', ha='left', va='top')
+                   c='black', s=5, zorder=7, marker='x', linewidth=0.5)
+        ax.scatter(np.radians(gcenter_x),np.radians(gcenter_dec),
+                   c='white', s=7, zorder=6, marker='x', linewidth=0.7)
+
+        ax.text(np.radians(gcenter_x), np.radians(gcenter_dec-3), 'GC',
+                fontsize='xx-small', ha='left', va='top',
+                path_effects=[pe.withStroke(linewidth=0.4, foreground="white")])
         ##########
 
     if overplot_k2_fields:
@@ -409,14 +416,30 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
 
 
-    xticklabels = np.array([150, 120, 90, 60, 30, 0, 330, 300, 270, 240, 210])
-    xticklabels = np.remainder(xticklabels+360+origin,360)
-    xticklabels = np.array([str(xtl)+'$\!$$^\circ$' for xtl in xticklabels])
-    ax.set_xticklabels(xticklabels, fontsize='x-small', zorder=5)
+    if is_radec:
+        xticks = np.array([120, 60, 0, 300, 240])
+        xticks = _shift_lon_get_x(xticks, origin)
+        ax.set_xticks(np.radians(xticks))
+        xticklabels = [
+            '8$^\mathrm{h}$', '4$^\mathrm{h}$', '0$^\mathrm{h}$',
+            '20$^\mathrm{h}$', '16$^\mathrm{h}$'
+        ]
+    else:
+        xticks = np.array([120, 60, 0, 300, 240])
+        xticks = _shift_lon_get_x(xticks, origin)
+        ax.set_xticks(np.radians(xticks))
+        xticklabels = np.array(
+            [str(xtl)+'$\!$$^\circ$' for xtl in np.array([120, 60, 0, 300, 240])]
+        )
+    ax.set_xticklabels(
+        xticklabels, fontsize='xx-small', zorder=5,
+        path_effects=[pe.withStroke(linewidth=0.4, foreground="white")]
+    )
 
-    yticklabels = np.arange(-75,75+15,15)
-    yticklabels = np.array([str(ytl)+'$\!$$^\circ$' for ytl in yticklabels])
-    ax.set_yticklabels(yticklabels, fontsize='x-small')
+    yticks = np.arange(-60,60+30,30)
+    ax.set_yticks(np.radians(yticks))
+    yticklabels = np.array([str(ytl)+'$\!$$^\circ$' for ytl in yticks])
+    ax.set_yticklabels(yticklabels, fontsize='xx-small')
 
     if not for_proposal:
         ax.set_title(title, y=1.05, fontsize='small')
@@ -438,7 +461,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                 ha='right',va='bottom')
 
     fig.tight_layout()
-    fig.savefig(os.path.join(savdir,savname),dpi=350, bbox_inches='tight')
+    fig.savefig(os.path.join(savdir,savname),dpi=600, bbox_inches='tight')
     print('saved {}'.format(os.path.join(savdir,savname)))
 
 
@@ -543,7 +566,7 @@ def make_pointing_map(
     if for_proposal:
         eclsavname = eclsavname.replace('.png','_forproposal.png')
         icrssavname = icrssavname.replace('.png','_forproposal.png')
-        size=0.5
+        size=0.35 # better than 0.5 with 48e5 points (also better than 0.25)
 
     if overplot_k2_fields:
         eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
@@ -561,7 +584,7 @@ def make_pointing_map(
     if not os.path.exists(obsdpath):
         # takes about 1 minute per strategy
         if for_proposal:
-            npts = 12e5
+            npts = 48e5 # 12e5 default...
         else:
             npts = 1e4
 
