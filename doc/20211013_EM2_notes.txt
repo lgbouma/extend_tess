@@ -1,0 +1,70 @@
+==========================================
+Wed Oct 13 09:58:46 2021
+
+As a reminder:
+
+PM: S1 - S26
+  S->N
+
+EM1: S27 through S56.
+  S->N->ecliptic->N
+
+  End FY2022 is Sep30, 2022.  Orbit 120 is last orbit of EM1 (which is in the
+  middle of a sector). 
+
+  B/c orbit 121 goes 2022-10-01 thru 2022-10-15 (S57).
+
+EM2:   S57 through S97
+  thru yr 7
+
+  Exact number of sectors???
+
+  In Roland's EM2 strawman slide from TSC2,
+
+  S56-S69: finish the north and start the south
+
+  S70-S83: finish the south, complete the ecliptic, restart the north
+
+  S84-S99: finish the north, and restart the south 
+
+Moon sidereal period: 27.32 days
+Lunar synodic period (seen from Earth between new moons) 29.5 days
+
+---> 99 sectors = 7.4 years.
+
+----------
+
+This agrees with Roland's numbers:
+
+2022-09-01T23:33:00,2022-09-30T18:17:00,56,119,120,353.176,54.0,-0.008,353.171,18.0,353.174,42.0,353.18,66.0,82.413,89.995
+
+i.e., FY2022 (thru Sep 30, 2022), ends at the same time as S56 ENDs. (end of orbit 120)
+
+----------
+
+The SR call asks for guidance on
+
+  ● Prioritize the operating missions and projects;
+  ● Define an implementation approach to achieve astrophysics strategic
+  objectives;
+  ● Provide programmatic direction to the missions and projects concerned for
+  FY23, FY24 and FY25; and
+  ● Issue initial funding guidelines for FY26 and FY27 (to be revisited in the
+  2025
+  Senior Review).
+
+i.e., a pointing strategy through FY25 is Sep 30, 2025, which is circa 
+the end of orbit 201.  (Sector 97)
+
+So EM2:   S57 through S97
+
+==========================================
+Wed Oct 13 11:30:56 2021
+
+Good!  So with convert_vanderspek_to_bouma_format.py on-hand, I think we're
+doing better.
+
+And visualizing by SECTOR INTERVALS is definitely the better (though somewhat
+more computationally expensive) approach.
+
+

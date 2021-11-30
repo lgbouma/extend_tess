@@ -1,0 +1,168 @@
+------------------------------------------
+TEXT
+
+% Young planets are important
+
+While thousands of transiting planets are known, most of them orbit
+stars that are between 1 and 10 billion years old.  This is a
+challenge for studies of planet evolution, because most evolutionary
+processes happen either during ($<$$10^7$ years) or shortly after disk
+dispersal ($<$$10^8$ years).  For example, the mini-Neptune planets
+discovered by Kepler with sizes between 2 and 4 $R_\oplus$ are thought
+to have been a factor of a few larger during their first one hundred
+million years ({\it e.g.}, Owen \& Wu 2016).  They then shrunk as they
+lost their primordial atmospheres of hydrogen and helium gas to
+different forms of heating.  Age is also a relevant variable for the
+hot Jupiters: in the long-standing debate regarding which of the
+disk-migration or high-eccentricity migration formation pathways are
+more effective, the latter predicts a dearth of very young hot
+Jupiters, which is consistent with the current data.  In the much
+closer context of the Solar System, the Moon itself is thought to have
+formed during an era of giant planetesimal impacts that lasted at
+least one hundred million years.
+
+% There's a challenge. But TESS is stepping up to the plate.
+
+While young stars and young planets have much to teach us, the stars
+themselves are rare, and they are also photometrically variable.  TESS
+is playing a major role both in finding new young stars, and also in
+discovering the young planets that transit them.  Several
+collaborations have developed to take advantage of this opportunity.
+They include THYME ({\it e.g.}, Newton et al., 2019), PATHOS ({\it
+e.g.}, Nardiello et al., 2020), and CDIPS ({\it e.g.}, Bouma et al.,
+2020), as well as a number of team who have avoided acronyms.
+
+% Probably the two most important young planet systems yet published
+% by TESS.  Ignoring submitted / in prep cases like TOI 1227.
+
+Some major planetary discoveries from TESS include the two
+mini-Neptune sized planets found to transit AU Mic, which is one of
+the nearest pre-main-sequence stars (Plavchan et al., 2020).  These 22
+million year-old planets may be actively losing their atmospheres; the
+star also hosts a outer debris disk which contains clumps of dust that
+could migrate inward to interact with the inner planetary system.
+There is also the 17 million year old Jupiter-sized HIP 67522 b
+(Rizzuto et al., 2020).  If it has a Jovian-mass, this Jupiter-sized
+planet ($10.4 \pm 0.4\,R_\oplus$) would be a factor of 50\% smaller
+than expected given standard planet evolution models (Fortney et al.,
+2007, Baraffe et al., 2008).  A more likely explanation is that it has
+a lower mass, closer to that of Neptune (17$\,M_\oplus$), but has not
+yet lost its puffy primordial atmosphere.
+
+While the size distribution that TESS is measuring of the youngest
+planets contains information about planetary atmospheres, new TESS
+discoveries are also enabling studies of planetary orbital
+architectures.  The main means is through spectroscopic measurements
+of the angle between the planet's orbit and the star's spin axis --
+the stellar obliquity -- which are only possible because the stars
+TESS discovers are so bright.  Hot field stars hosting hot Jupiters
+(Winn et al., 2010) and perhaps hosting smaller planets (Louden et
+al., 2020) often have high obliquities.  The obliquities of planets
+around cool stars tend to be low, but this could be due to tidal
+realignment.  Obliquity measurements for young planets are therefore
+important, because they provide a view of the primordial obliquity
+distribution.  So far, all of the young close-in planets from TESS
+seem to have orbits that are aligned with their stellar spins (Zhou et
+al., 2020, Palle et al., 2020, Dai et al., 2020, Heitzmann et al.,
+2021).  This is consistent with a quiescent migration history for all
+of these systems, and is different than the misaligned orbits seen
+around some comparable older systems.  Future TESS discoveries will
+increase the number of obliquity measurements for young planets and
+will have an outsized impact on our understanding of primordial
+planetary orbits, particularly around cool stars where tidal
+realignment is most effective.
+
+% Psc-Eri, blind searches, and the FFIs
+
+A separate benefit of the wide sky coverage from TESS is that one can
+find planets around stars that were not known to be special ahead of
+time.  One prominent example is the Psc-Eri stream.  Using data from
+Gaia, Meingast et al., (2019) discovered a nearby stream of co-moving
+stars in the galactic disk spread over 400 parsecs.  Gaia alone
+however did not enable an accurate measurement of the ages of the
+stars.  Light curves from the TESS full frame images enabled Curtis et
+al., (2019) to measure stellar rotation periods for stars in the
+stream.  Using gyrochronology, this led to a determination that all
+these stars were 120 million years old.  Psc-Eri now has over 1000
+known members (e.g., Roser & Schilbach 2020). This provides what is
+essentially a new Pleiades, at a comparable distance, and with
+significantly less crowding.  There are many potential uses in stellar
+astrophysics (e.g., Hawkins 2020).  Within exoplanets, TESS discovered
+three transiting planets in the Psc-Eri stream (TOI-451; Newton et
+al., 2020), while the Pleiades has yet to have any transiting planet
+discoveries.  Similar techniques have been applied to discover
+entirely new open clusters around TESS planet candidates (TOI-1098;
+Tofflemire et al., 2021), and also to characterize the tidal tails of
+already known open clusters (Bouma et al., 2021).
+
+The synergy between TESS and all-sky missions including WISE, Gaia,
+and e-ROSITA provides a strong reason to expect more exciting
+discoveries in the areas of young planets and their host stars.  In
+addition to studies aimed at discovering the youngest transiting
+planets, the duration and cadence of TESS data enables studies of
+stellar angular momentum evolution (via rotation periods), stellar
+flaring rates and the associated quantities of high-energy flux
+incident on planetary surfaces (e.g., Gilbert et al., 2021), and
+stellar evolution through the determination of fundamental parameters
+of young eclipsing binaries (e.g., Stassun et al., 2020).
+
+
+------------------------------------------
+REFERENCES:
+
+Owen & Wu 2016
+https://ui.adsabs.harvard.edu/abs/2016ApJ...817..107O/abstract
+
+Newton+19
+https://ui.adsabs.harvard.edu/abs/2019ApJ...880L..17N/abstract
+
+Nardiello+20
+https://ui.adsabs.harvard.edu/abs/2020MNRAS.498.5972N/abstract
+
+Bouma+20
+https://ui.adsabs.harvard.edu/abs/2020AJ....160..239B/abstract
+
+Plavchan+20
+https://ui.adsabs.harvard.edu/abs/2020Natur.582..497P/abstract
+
+Rizzuto+20
+https://ui.adsabs.harvard.edu/abs/2020AJ....160...33R/abstract
+
+Fortney+07
+https://ui.adsabs.harvard.edu/abs/2007ApJ...659.1661F/abstract
+
+Baraffe+08
+https://ui.adsabs.harvard.edu/abs/2008A%26A...482..315B/abstract
+
+Tofflemire+21
+https://ui.adsabs.harvard.edu/abs/2021AJ....161..171T/abstract
+
+Bouma+21
+https://ui.adsabs.harvard.edu/abs/2021AJ....162..197B/abstract
+
+Zhou+20
+https://ui.adsabs.harvard.edu/abs/2020ApJ...892L..21Z/abstract
+
+Palle+20
+https://ui.adsabs.harvard.edu/abs/2020A%26A...643A..25P/abstract
+
+Dai+20
+https://ui.adsabs.harvard.edu/abs/2020AJ....160..193D/abstract
+
+Heitzmann+21
+https://ui.adsabs.harvard.edu/abs/2021ApJ...922L...1H/abstract
+
+Meingast+19
+https://ui.adsabs.harvard.edu/abs/2019A%26A...622L..13M/abstract
+
+Curtis+19
+https://ui.adsabs.harvard.edu/abs/2019AJ....158...77C/abstract
+
+Roser & Schilbach 2020
+https://ui.adsabs.harvard.edu/abs/2020A%26A...638A...9R/abstract
+
+Gilbert+21
+https://ui.adsabs.harvard.edu/abs/2021arXiv210903924G/abstract
+
+Stassun+21
+https://ui.adsabs.harvard.edu/abs/2021ApJ...910..133S/abstract

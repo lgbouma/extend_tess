@@ -1,0 +1,7 @@
+Sizes and ages of known transiting planets.  Systems younger than one gigayear
+with ages measured more precisely than a factor of two are emphasized, and were
+retrieved from the NASA Exoplanet Archive on 22 Nov 2021.  The majority of
+these planets are in open clusters and young stellar associations.  In the
+published literature, TESS has already doubled the number of such systems.
+Note that starspot-induced variability makes it more difficult to detect the
+smallest planets around the youngest stars.

@@ -1,0 +1,8 @@
+* in what year can we finally fill in the ecliptic?
+
+  * (e.g., in EM#2?)
+
+  * err, roland's basically answered this. in year 6, "zone of avoidance"
+    starts to shift. so... EM1 is thru year 4.5. It'll be end of EM2, beginning
+    of EM3.
+
