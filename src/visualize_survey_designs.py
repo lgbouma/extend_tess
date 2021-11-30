@@ -200,7 +200,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
             sel = color_val > 0
             _ = ax.scatter(np.radians(x[~sel]),np.radians(dec[~sel]),
                            c=color_val[~sel],
-                           s=size/4, lw=0, zorder=-50, cmap=cmap, norm=norm,
+                           s=size/4, lw=0, zorder=-999, cmap=cmap, norm=norm,
                            marker='s',
                            rasterized=True)
 
@@ -552,7 +552,7 @@ def make_pointing_map(
 
     # NOTE: this will be updated. em2_v00.csv for instance, is made by
     # src.convert_vanderspek_to_bouma_format.py
-    NAME_STRING = 'em2_v00'
+    NAME_STRING = 'em2_v01'
 
     filename = f'{NAME_STRING}.csv'
     sectorstr = f'S{sector_interval[0]}_S{sector_interval[1]}'
@@ -636,7 +636,9 @@ if __name__=="__main__":
     plot_tess=1             # true to activate tess field overplot
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
     # define intervals of plots you want to make
-    sector_intervals = [(1,26), (27,56), (57,97), (1,97), (1,56)]
+    sector_intervals = [(1,26), (27,55), (56,97), (98, 123),
+                        (1,97), (1,55), (1,123)]
+    #sector_intervals = [(1,97), (1,123)]
     # END OPTIONS
 
     for sector_interval in sector_intervals:

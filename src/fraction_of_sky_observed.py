@@ -24,9 +24,10 @@ from glob import glob
 if __name__=="__main__":
 
     fnames = [
-        '../data/em2_v00_coords_observed_forproposal_S1_S26.csv',
-        '../data/em2_v00_coords_observed_forproposal_S1_S56.csv',
-        '../data/em2_v00_coords_observed_forproposal_S1_S97.csv',
+        '../data/em2_v01_coords_observed_forproposal_S1_S26.csv',
+        '../data/em2_v01_coords_observed_forproposal_S1_S55.csv',
+        '../data/em2_v01_coords_observed_forproposal_S1_S97.csv',
+        '../data/em2_v01_coords_observed_forproposal_S1_S123.csv',
     ]
 
     print(10*'-')
@@ -42,9 +43,10 @@ if __name__=="__main__":
         print('{:s} --- {:.2f}% of sky observed'.
               format(os.path.basename(fname), 100*n_obsd/n_stars))
 
-    pri = pd.read_csv('../data/em2_v00_coords_observed_forproposal_S1_S26.csv', sep=';')
-    em1 = pd.read_csv('../data/em2_v00_coords_observed_forproposal_S27_S56.csv', sep=';')
-    em2 = pd.read_csv('../data/em2_v00_coords_observed_forproposal_S57_S97.csv', sep=';')
+    pri = pd.read_csv('../data/em2_v01_coords_observed_forproposal_S1_S26.csv', sep=';')
+    em1 = pd.read_csv('../data/em2_v01_coords_observed_forproposal_S27_S55.csv', sep=';')
+    em2 = pd.read_csv('../data/em2_v01_coords_observed_forproposal_S56_S97.csv', sep=';')
+    em3 = pd.read_csv('../data/em2_v01_coords_observed_forproposal_S98_S123.csv', sep=';')
 
     # One of our Primary Mission Objectives (PMOs) for EM1 was "Re-observe and
     # double the time coverage for 80% of the Prime Mission fields."  Did we do
@@ -121,10 +123,78 @@ if __name__=="__main__":
     )
     n_12mo_em2 = len(em1[sel])
 
+    # in EM3: means reobserved from either EM1 or EM2, or n_obs>=12 in primary.
+    sel = (
+        ((em3.n_observations > 0) & (pri.n_observations > 0)) # reobserved pri->EM3
+        |
+        ((em3.n_observations > 0) & (em1.n_observations > 0)) # reobserved EM1->EM3
+        |
+        ((em3.n_observations > 0) & (em2.n_observations > 0)) # reobserved EM2->EM3
+        |
+        ((em2.n_observations > 0) & (pri.n_observations > 0)) # reobserved pri->EM2
+        |
+        ((em2.n_observations > 0) & (em1.n_observations > 0)) # reobserved EM1->EM2
+        |
+        ((em1.n_observations > 0) & (pri.n_observations > 0)) # reobserved pri->EM1
+        |
+        (pri.n_observations >= 12) # n_obs>=12 in primary
+    )
+    n_12mo_em3 = len(em1[sel])
+
+
     print(q3)
     print(
         "A:\n"
         f"Primary mission S1-S26: {100*n_12mo_pri/n_stars:.2f}% \n"
-        f"Primary+EM1 S1-S56: {100*n_12mo_em1/n_stars:.2f}% \n"
+        f"Primary+EM1 S1-S55: {100*n_12mo_em1/n_stars:.2f}% \n"
         f"Primary+EM1+EM2 S1-S97: {100*n_12mo_em2/n_stars:.2f}% \n"
+        f"Primary+EM1+EM2+2year S1-S123: {100*n_12mo_em3/n_stars:.2f}% \n"
     )
+
+    ##########################################
+    q4 = (
+        'What fraction of the sky has been observed at least once?'
+    )
+
+    sel = (
+        (pri.n_observations > 0)
+    )
+    n_pri = len(pri[sel])
+
+    sel = (
+        (em1.n_observations > 0)
+        |
+        (pri.n_observations > 0)
+    )
+    n_em1 = len(em1[sel])
+
+    sel = (
+        (em2.n_observations > 0)
+        |
+        (em1.n_observations > 0)
+        |
+        (pri.n_observations > 0)
+    )
+    n_em2 = len(em2[sel])
+
+    sel = (
+        (em3.n_observations > 0)
+        |
+        (em2.n_observations > 0)
+        |
+        (em1.n_observations > 0)
+        |
+        (pri.n_observations > 0)
+    )
+    n_em3 = len(em3[sel])
+
+    print(q4)
+    print(
+        "A:\n"
+        f"Primary mission S1-S26: {100*n_pri/n_stars:.2f}% \n"
+        f"Primary+EM1 S1-S55: {100*n_em1/n_stars:.2f}% \n"
+        f"Primary+EM1+EM2 S1-S97: {100*n_em2/n_stars:.2f}% \n"
+        f"Primary+EM1+EM2+2year S1-S123: {100*n_em3/n_stars:.2f}% \n"
+    )
+
+
