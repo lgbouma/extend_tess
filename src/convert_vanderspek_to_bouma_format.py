@@ -29,9 +29,10 @@ foo = pd.DataFrame(
 sdf = pd.concat((sdf,foo)).reset_index(drop=True)
 
 # OK. now, for each sector get the camera centers... and rolls[?]
+vnumstr = '06'
 vanderpath = (
     '/Users/luke/Dropbox/proj/extend_tess/data/20211013_vanderspek_EM2/'
-    'luke_Scenario_01.out'
+    f'luke_Scenario_{vnumstr}.out'
 )
 with open(vanderpath) as f:
     lines = f.readlines()
@@ -74,6 +75,6 @@ outdf['S'] = outdf['S'].astype(int)
 outdf['O1'] = outdf['O1'].astype(int)
 outdf['O2'] = outdf['O2'].astype(int)
 
-outpath = '../data/em2_v01.csv'
+outpath = f'../data/em2_v{vnumstr}.csv'
 outdf.to_csv(outpath, index=False)
 print(f"made {outpath}")

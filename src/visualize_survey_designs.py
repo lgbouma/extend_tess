@@ -552,7 +552,7 @@ def make_pointing_map(
 
     # NOTE: this will be updated. em2_v00.csv for instance, is made by
     # src.convert_vanderspek_to_bouma_format.py
-    NAME_STRING = 'em2_v01'
+    NAME_STRING = 'em2_v06'
 
     filename = f'{NAME_STRING}.csv'
     sectorstr = f'S{sector_interval[0]}_S{sector_interval[1]}'
