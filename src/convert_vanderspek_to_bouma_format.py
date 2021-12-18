@@ -29,7 +29,7 @@ foo = pd.DataFrame(
 sdf = pd.concat((sdf,foo)).reset_index(drop=True)
 
 # OK. now, for each sector get the camera centers... and rolls[?]
-vnumstr = '06'
+vnumstr = '09'
 vanderpath = (
     '/Users/luke/Dropbox/proj/extend_tess/data/20211013_vanderspek_EM2/'
     f'luke_Scenario_{vnumstr}.out'

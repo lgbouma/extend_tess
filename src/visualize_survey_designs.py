@@ -32,7 +32,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
              projection='mollweide',savdir='../results/',savname='mwd_0.pdf',
              overplot_galactic_plane=True, is_tess=False, is_radec=None,
              cbarbounds=None, for_proposal=False, overplot_k2_fields=False,
-             for_GRR=False, plot_tess=True):
+             for_GRR=False, plot_tess=True, show_holes=False):
 
     '''
     args, kwargs:
@@ -45,6 +45,8 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         title is the title of the figure.
 
         projection is the kind of projection: 'mollweide', 'aitoff', ...
+
+        show_holes: True to get inverse color scheme.
 
     comments: see
     http://balbuceosastropy.blogspot.com/2013/09/the-mollweide-projection.html.
@@ -152,6 +154,11 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                       "#07273d", "#07273d", "#07273d",
                       "#000000" # N>=27 black
                      ]
+
+            if show_holes:
+                colors = ["#000000"] # N=0 black
+                for i in range(28):
+                    colors.append("#ffffff") # rest white
 
             from matplotlib.colors import (
                 LinearSegmentedColormap, ListedColormap
@@ -542,17 +549,13 @@ def get_n_observations(sector_interval, dirnfile, outpath, n_stars, merged=False
 
 
 def make_pointing_map(
-    sector_interval, for_proposal=False, overplot_k2_fields=False,
-    plot_tess=True
+    sector_interval, NAME_STRING, for_proposal=False, overplot_k2_fields=False,
+    plot_tess=True, show_holes=False
 ):
 
     datadir = '../data/'
     savdir = '../results/visualize_survey_designs/EM2_SENIOR_REVIEW'
     orbit_duration_days = 1 #27.32 / 2
-
-    # NOTE: this will be updated. em2_v00.csv for instance, is made by
-    # src.convert_vanderspek_to_bouma_format.py
-    NAME_STRING = 'em2_v06'
 
     filename = f'{NAME_STRING}.csv'
     sectorstr = f'S{sector_interval[0]}_S{sector_interval[1]}'
@@ -564,17 +567,21 @@ def make_pointing_map(
     size=0.8
 
     if for_proposal:
-        eclsavname = eclsavname.replace('.png','_forproposal.png')
-        icrssavname = icrssavname.replace('.png','_forproposal.png')
+        eclsavname = eclsavname.replace('.png','.png')
+        icrssavname = icrssavname.replace('.png','.png')
         size=0.35 # better than 0.5 with 48e5 points (also better than 0.25)
 
     if overplot_k2_fields:
-        eclsavname = eclsavname.replace('.png','_forproposal_k2overplot.png')
-        icrssavname = icrssavname.replace('.png','_forproposal_k2overplot.png')
+        eclsavname = eclsavname.replace('.png','_k2.png')
+        icrssavname = icrssavname.replace('.png','_k2.png')
 
     if not plot_tess:
         eclsavname = eclsavname.replace('.png','_notess.png')
         icrssavname = icrssavname.replace('.png','_notess.png')
+
+    if show_holes:
+        eclsavname = eclsavname.replace('.png','_showholes.png')
+        icrssavname = icrssavname.replace('.png','_showholes.png')
 
     obsdstr = '' if not for_proposal else '_forproposal'
     obsdpath = dirnfile.replace(
@@ -603,29 +610,20 @@ def make_pointing_map(
 
     sel_durn = (nparr(df['obs_duration']) >= 0)
 
-    plot_mwd(nparr(df['elon'])[sel_durn],
-             nparr(df['elat'])[sel_durn],
-             nparr(df['obs_duration'])[sel_durn],
-             origin=0, size=size, title=title,
-             projection='mollweide', savdir=savdir,
-             savname=eclsavname,
-             overplot_galactic_plane=True, is_tess=True, is_radec=False,
-             cbarbounds=cbarbounds,
-             for_proposal=for_proposal,
-             overplot_k2_fields=overplot_k2_fields,
-             plot_tess=plot_tess)
-
-    plot_mwd(nparr(df['ra'])[sel_durn],
-             nparr(df['dec'])[sel_durn],
-             nparr(df['obs_duration'])[sel_durn],
-             origin=0, size=size, title=title,
-             projection='mollweide', savdir=savdir,
-             savname=icrssavname,
-             overplot_galactic_plane=True, is_tess=True, is_radec=True,
-             cbarbounds=cbarbounds,
-             for_proposal=for_proposal,
-             overplot_k2_fields=overplot_k2_fields,
-             plot_tess=plot_tess)
+    for lonkey, latkey, savname, is_radec in zip(
+        ['elon', 'ra'], ['elat', 'dec'], [eclsavname, icrssavname], [False, True]
+    ):
+        plot_mwd(nparr(df[lonkey])[sel_durn],
+                 nparr(df[latkey])[sel_durn],
+                 nparr(df['obs_duration'])[sel_durn],
+                 origin=0, size=size, title=title,
+                 projection='mollweide', savdir=savdir,
+                 savname=savname,
+                 overplot_galactic_plane=True, is_tess=True, is_radec=is_radec,
+                 cbarbounds=cbarbounds,
+                 for_proposal=for_proposal,
+                 overplot_k2_fields=overplot_k2_fields,
+                 plot_tess=plot_tess, show_holes=show_holes)
 
 
 if __name__=="__main__":
@@ -635,16 +633,41 @@ if __name__=="__main__":
     overplot_k2_fields=1    # true to activate k2 field overplot
     plot_tess=1             # true to activate tess field overplot
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
-    # define intervals of plots you want to make
-    sector_intervals = [(1,26), (27,55), (56,97), (98, 123),
-                        (1,97), (1,55), (1,123)]
-    #sector_intervals = [(1,97), (1,123)]
+    # intervals of plots you want to make
+    sector_intervals = [  # all relevant for EM2+2year
+        (1,26), (27,55), (56,97), (98, 123), (1,97), (1,55), (1,123)
+    ]
+    # sector_intervals = [  # cumulative EM2+2year
+    #     (1,97), (1,123)
+    # ]
     # END OPTIONS
 
+    # NOTE: this will be updated. em2_v00.csv for instance, is made by
+    # src.convert_vanderspek_to_bouma_format.py
+    name_strings = [
+        #'em2_v01', 'em2_v02', 'em2_v03', 'em2_v04', 'em2_v05', 'em2_v06'
+        #'em2_v07r'
+        'em2_v09'
+    ]
+
     for sector_interval in sector_intervals:
-        make_pointing_map(
-            sector_interval,
-            for_proposal=for_proposal,
-            overplot_k2_fields=overplot_k2_fields,
-            plot_tess=plot_tess
-        )
+        for n in name_strings:
+            make_pointing_map(
+                sector_interval,
+                n,
+                for_proposal=for_proposal,
+                overplot_k2_fields=overplot_k2_fields,
+                plot_tess=plot_tess,
+                show_holes=show_holes
+            )
+    for sector_interval in [(1,97), (1,123)]:
+        for n in name_strings:
+            make_pointing_map(
+                sector_interval,
+                n,
+                for_proposal=for_proposal,
+                overplot_k2_fields=overplot_k2_fields,
+                plot_tess=plot_tess,
+                show_holes=True
+            )
+
