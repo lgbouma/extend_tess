@@ -635,7 +635,10 @@ if __name__=="__main__":
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
     # intervals of plots you want to make
     sector_intervals = [  # all relevant for EM2+2year
-        (1,26), (27,55), (56,97), (98, 123), (1,97), (1,55), (1,123)
+        #(1,26), (27,55), (56,97), (98, 123), (1,97), (1,55), (1,123),
+        #(27,47)
+        #(27,56), (57,97)
+        (1,56)
     ]
     # sector_intervals = [  # cumulative EM2+2year
     #     (1,97), (1,123)
@@ -658,7 +661,7 @@ if __name__=="__main__":
                 for_proposal=for_proposal,
                 overplot_k2_fields=overplot_k2_fields,
                 plot_tess=plot_tess,
-                show_holes=show_holes
+                show_holes=False
             )
     for sector_interval in [(1,97), (1,123)]:
         for n in name_strings:

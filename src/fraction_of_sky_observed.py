@@ -26,16 +26,20 @@ def main(versionstr=None):
     assert versionstr[0] == 'v'
     assert len(versionstr) == 3
 
-    fnames = [
-        #f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S26.csv',
-        #f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S55.csv',
-        f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S97.csv',
-        f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S123.csv',
-    ]
+    # fnames = [
+    #     f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S26.csv',
+    #     f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S55.csv',
+    #     f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S97.csv',
+    #     f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S123.csv',
+    # ]
 
-    df_cum_em1 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S55.csv')
+    EM1end = 'S56' #if versionstr=='v00' else 'S55'
+    EM2start = 'S57' #if versionstr=='v00' else 'S56'
+
+    df_cum_em1 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_{EM1end}.csv')
     df_cum_em2 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S97.csv')
-    df_cum_em3 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S123.csv')
+    if versionstr != 'v00':
+        df_cum_em3 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S123.csv')
 
     n_stars = len(df_cum_em1)
 
@@ -84,56 +88,75 @@ def main(versionstr=None):
 
 
     pri = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S26.csv', sep=';')
-    em1 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S27_S55.csv', sep=';')
-    em2 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S56_S97.csv', sep=';')
-    em3 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S98_S123.csv', sep=';')
+    em1 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S27_{EM1end}.csv', sep=';')
+    em2 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_{EM2start}_S97.csv', sep=';')
+    try:
+        em3 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S98_S123.csv', sep=';')
+    except:
+        em3 = None
+    try:
+        em1mid = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S27_S47.csv', sep=';')
+    except:
+        em1mid = None
 
     # # One of our Primary Mission Objectives (PMOs) for EM1 was "Re-observe and
     # # double the time coverage for 80% of the Prime Mission fields."  Did we do
     # # this?  What fraction of the sky that was observed during the Prime
     # # Mission was (or is scheduled to be) re-observed during EM1?
 
-    # sel = (
-    #     (em1.n_observations > 0)
-    #     &
-    #     (pri.n_observations > 0)
-    # )
+    sel = (
+        (em1.n_observations > 0)
+        &
+        (pri.n_observations > 0)
+    )
 
-    # n_pri = len(pri[pri.n_observations>0])
-    # n_reobs_em1 = len(em1[sel])
+    n_pri = len(pri[pri.n_observations>0])
+    n_reobs_em1 = len(em1[sel])
 
-    # print(10*'-')
-    # q1 = (
-    #     'What fraction of the sky that was observed during the Prime '
-    #     'Mission was (or is scheduled to be) re-observed during EM1?\n'
-    # )
-    # print('{:s}A: {:.2f}% of sky that was observed during Prime Mission '
-    #       'has been or is scheduled to be re-observed during EM1'.
-    #       format(q1, 100*n_reobs_em1/n_pri))
+    if em1mid is not None:
+        sel = (
+            (em1mid.n_observations > 0)
+            &
+            (pri.n_observations > 0)
+        )
+        n_reobs_em1mid = len(em1mid[sel])
+
+    print(10*'-')
+    q1 = (
+        'What fraction of the sky that was observed during the Prime '
+        'Mission was (or is scheduled to be) re-observed during EM1?\n'
+    )
+    print('{:s}A: {:.2f}% of sky that was observed during Prime Mission '
+          'has been or is scheduled to be re-observed during EM1'.
+          format(q1, 100*n_reobs_em1/n_pri))
+    if em1mid is not None:
+        print('A at S47: {:.2f}% of sky that was observed during Prime Mission '
+              'has been reobserved.'.
+              format(100*n_reobs_em1mid/n_pri))
 
     # # Another PMO was "Observe 70% of the portion of the sky that was not
     # # observed during the Prime Mission, including the ecliptic."  Did we do
     # # this?  What fraction of the sky that was not observed during the PM was
     # # or will be observed during EM1?
 
-    # sel = (
-    #     (em1.n_observations > 0)
-    #     &
-    #     (pri.n_observations == 0)
-    # )
+    sel = (
+        (em1.n_observations > 0)
+        &
+        (pri.n_observations == 0)
+    )
 
-    # n_not_obs_pri = len(pri[pri.n_observations==0])
-    # n_obs_em1_but_not_pri = len(em1[sel])
+    n_not_obs_pri = len(pri[pri.n_observations==0])
+    n_obs_em1_but_not_pri = len(em1[sel])
 
-    # print(10*'-')
-    # q2 = (
-    #     'What fraction of the sky that was not observed during the '
-    #     'PM was or will be observed during EM1?\n'
-    # )
-    # print('{:s}A: {:.2f}% of sky that was not observed during Prime Mission '
-    #       'has been or is scheduled to be re-observed during EM1'.
-    #       format(q2, 100*n_obs_em1_but_not_pri/n_not_obs_pri))
-    # print(10*'-')
+    print(10*'-')
+    q2 = (
+        'What fraction of the sky that was not observed during the '
+        'PM was or will be observed during EM1?\n'
+    )
+    print('{:s}A: {:.2f}% of sky that was not observed during Prime Mission '
+          'has been or is scheduled to be re-observed during EM1'.
+          format(q2, 100*n_obs_em1_but_not_pri/n_not_obs_pri))
+    print(10*'-')
 
     ##########################################
     q4 = (
@@ -176,7 +199,7 @@ def main(versionstr=None):
     print(
         "A:\n"
         f"Primary mission S1-S26: {100*n_pri/n_stars:.2f}% \n"
-        f"Primary+EM1 S1-S55: {100*n_em1/n_stars:.2f}% \n"
+        f"Primary+EM1 S1-{EM1end}: {100*n_em1/n_stars:.2f}% \n"
         f"Primary+EM1+EM2 S1-S97: {100*n_em2/n_stars:.2f}% \n"
         f"Primary+EM1+EM2+2year S1-S123: {100*n_em3/n_stars:.2f}% \n"
     )
@@ -233,7 +256,7 @@ def main(versionstr=None):
     print(
         "A:\n"
         f"Primary mission S1-S26: {100*n_12mo_pri/n_stars:.2f}% \n"
-        f"Primary+EM1 S1-S55: {100*n_12mo_em1/n_stars:.2f}% \n"
+        f"Primary+EM1 S1-{EM1end}: {100*n_12mo_em1/n_stars:.2f}% \n"
         f"Primary+EM1+EM2 S1-S97: {100*n_12mo_em2/n_stars:.2f}% \n"
         f"Primary+EM1+EM2+2year S1-S123: {100*n_12mo_em3/n_stars:.2f}% \n"
     )
@@ -245,7 +268,7 @@ def main(versionstr=None):
     q5 = (
         'Fraction of the sky observed for >=19 sectors (>= 500 days)'
     )
-    df_cum_em1 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S55.csv', sep=';')
+    df_cum_em1 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_{EM1end}.csv', sep=';')
     df_cum_em2 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S97.csv', sep=';')
     df_cum_em3 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S123.csv', sep=';')
 
@@ -259,7 +282,7 @@ def main(versionstr=None):
     print(
         "A:\n"
         f"Primary mission S1-S26: {100*n_pri/n_stars:.2f}% \n"
-        f"Primary+EM1 S1-S55: {100*n_em1/n_stars:.2f}% \n"
+        f"Primary+EM1 S1-{EM1end}: {100*n_em1/n_stars:.2f}% \n"
         f"Primary+EM1+EM2 S1-S97: {100*n_em2/n_stars:.2f}% \n"
         f"Primary+EM1+EM2+2year S1-S123: {100*n_em3/n_stars:.2f}% \n"
     )
@@ -282,7 +305,7 @@ def main(versionstr=None):
     print(
         "A:\n"
         f"Primary mission S1-S26: {100*n_pri/n_stars:.2f}% \n"
-        f"Primary+EM1 S1-S55: {100*n_em1/n_stars:.2f}% \n"
+        f"Primary+EM1 S1-{EM1end}: {100*n_em1/n_stars:.2f}% \n"
         f"Primary+EM1+EM2 S1-S97: {100*n_em2/n_stars:.2f}% \n"
         f"Primary+EM1+EM2+2year S1-S123: {100*n_em3/n_stars:.2f}% \n"
     )
@@ -313,6 +336,7 @@ if __name__=="__main__":
     # main('v06')
     #main('v07')
     main('v09')
+    #main('v00')
 
     # main('v01')
     # main('v02')
