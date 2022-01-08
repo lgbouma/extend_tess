@@ -24,7 +24,7 @@ from glob import glob
 def main(versionstr=None):
     # e.g., "v01" for versionstr.
     assert versionstr[0] == 'v'
-    assert len(versionstr) == 3
+    assert len(versionstr) in [3,4]
 
     # fnames = [
     #     f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S26.csv',
@@ -335,8 +335,9 @@ if __name__=="__main__":
     # main('v05')
     # main('v06')
     #main('v07')
-    main('v09')
     #main('v00')
+    #main('v09')
+    main('v09c')
 
     # main('v01')
     # main('v02')

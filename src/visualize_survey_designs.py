@@ -78,8 +78,37 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         #           "#1b3876", "#002680", "#001d80", "#001480", "#000c80",
         #           "#000880", "#000480", "#000080"]
 
+
+        #cbarbounds = [-0.5, 0.5, 1.5, 2.5, 12.5, 39.5 ]
+        if len(cbarbounds) < 8:
+
+            colors = ["#ffffff", # N=0 white
+                      "#84ccff", # N=1 pale blue
+                      "#35aaff", # N=2 a little more saturated
+                      #"#279aea", # N=3-12 a little more saturated
+                      "#126199", # N=3-12 a little more saturated
+                      # "#279aea", # N=6-11 more saturated blue
+                      # "#279aea", "#1f77b4", "#1f77b4",
+                      # "#1f77b4", "#1f77b4", "#1f77b4", "#1f77b4",
+                      # "#126199", "#126199", # N=12,13 saturated blue
+                      # #"#ffa251", # N=14-20 light orange
+                      # #"#ffa251","#ffa251","#ffa251",
+                      # #"#ffa251","#ffa251","#ffa251",
+                      # #"#ff7f0e", # N=21-26 saturated orange
+                      # #"#ff7f0e", "#ff7f0e", "#ff7f0e",
+                      # #"#ff7f0e", "#ff7f0e", "#ff7f0e",
+                      # #"#16E977" # N>=27 lime green
+                      # "#0a3a5c", # N=14-20 dark blue
+                      # "#0a3a5c","#0a3a5c","#0a3a5c",
+                      # "#0a3a5c","#0a3a5c","#0a3a5c",
+                      # "#07273d", # N=21-26 saturated blue
+                      # "#07273d", "#07273d", "#07273d",
+                      # "#07273d", "#07273d", "#07273d",
+                      "#000000" # N>=13 black
+                     ]
+
         # 14 color
-        if len(cbarbounds) < 15:
+        elif len(cbarbounds) < 15:
 
             colors = ["#ffffff", "#e7d914", "#ceb128", "#b58a3d",
                       "#866c50", "#515263", "#1b3876", "#002680",
@@ -160,22 +189,22 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
                 for i in range(28):
                     colors.append("#ffffff") # rest white
 
-            from matplotlib.colors import (
-                LinearSegmentedColormap, ListedColormap
-            )
+        from matplotlib.colors import (
+            LinearSegmentedColormap, ListedColormap
+        )
 
-            #METHOD 1: custom cmap
-            cmap = LinearSegmentedColormap.from_list(
-                'my_cmap', colors, N=len(colors)
-            )
+        #METHOD 1: custom cmap
+        cmap = LinearSegmentedColormap.from_list(
+            'my_cmap', colors, N=len(colors)
+        )
 
-            # # METHOD 2 (pre-baked)
-            # N = len(colors)
-            # colormap = cm.get_cmap('Blues', N)
-            # newcolors = colormap(np.linspace(0.15, 1, N))
-            # white = np.array([0,0,0,0])
-            # newcolors[:1, :] = white
-            # cmap = ListedColormap(newcolors)
+        # # METHOD 2 (pre-baked)
+        # N = len(colors)
+        # colormap = cm.get_cmap('Blues', N)
+        # newcolors = colormap(np.linspace(0.15, 1, N))
+        # white = np.array([0,0,0,0])
+        # newcolors[:1, :] = white
+        # cmap = ListedColormap(newcolors)
 
 
         if isinstance(cbarbounds,np.ndarray):
@@ -226,7 +255,12 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         # #FIXME WORKS!
 
         # set up colorbar
-        if len(colors) < 15:
+        if len(colors) < 8:
+            #cbarbounds = [-0.5, 0.5, 1.5, 2.5, 12.5, 39.5 ]
+            ticks = [0, 1, 2, (2.5+12.5)/2, (12.5+39.5)/2]
+            ylabels = ['0', '1', '2', '3-12', '$\geq \! 13$']
+
+        elif len(colors) < 15:
             ticks = 27.32*(np.arange(-1,13)+1)
             ylabels = list(map(str,np.round(27.32*(np.arange(0,13)),1)))
             ylabels[-1] = '$\geq \! 328$'
@@ -600,12 +634,13 @@ def make_pointing_map(
     df = pd.read_csv(obsdpath, sep=';')
     df['obs_duration'] = orbit_duration_days*df['n_observations']
 
-    # NOTE: default
-    cbarbounds = np.arange(-1/2, 27, 1)
+    # # NOTE: default
+    # cbarbounds = np.arange(-1/2, 27, 1)
+    # # NOTE: new
+    # cbarbounds = list(np.arange(-1/2, 27, 1))
+    # cbarbounds.append(39.5)
 
-    # NOTE: new
-    cbarbounds = list(np.arange(-1/2, 27, 1))
-    cbarbounds.append(39.5)
+    cbarbounds = [-0.5, 0.5, 1.5, 2.5, 12.5, 39.5 ]
     cbarbounds = np.array(cbarbounds)
 
     sel_durn = (nparr(df['obs_duration']) >= 0)
@@ -635,10 +670,7 @@ if __name__=="__main__":
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
     # intervals of plots you want to make
     sector_intervals = [  # all relevant for EM2+2year
-        #(1,26), (27,55), (56,97), (98, 123), (1,97), (1,55), (1,123),
-        #(27,47)
-        #(27,56), (57,97)
-        (1,56)
+        (1,26), (27,56), (57,97), (1,56), (98, 123), (1,97), (1,123), #(27,47)
     ]
     # sector_intervals = [  # cumulative EM2+2year
     #     (1,97), (1,123)
@@ -650,7 +682,8 @@ if __name__=="__main__":
     name_strings = [
         #'em2_v01', 'em2_v02', 'em2_v03', 'em2_v04', 'em2_v05', 'em2_v06'
         #'em2_v07r'
-        'em2_v09'
+        #'em2_v09'
+        'em2_v09c'
     ]
 
     for sector_interval in sector_intervals:
