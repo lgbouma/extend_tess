@@ -265,6 +265,33 @@ def main(versionstr=None):
                          100*n_12mo_em2/n_stars, 100*n_12mo_em3/n_stars],2)
 
     ##########################################
+    q7 = (
+        'Fraction of the sky observed for >=3 sectors'
+    )
+    df_cum_em1 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_{EM1end}.csv', sep=';')
+    df_cum_em2 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S97.csv', sep=';')
+    df_cum_em3 = pd.read_csv(f'../data/em2_{versionstr}_coords_observed_forproposal_S1_S123.csv', sep=';')
+
+    NSECTOR = 3
+    n_pri = len(pri[pri.n_observations>=NSECTOR])
+    n_em1 = len(df_cum_em1[df_cum_em1.n_observations>=NSECTOR])
+    n_em2 = len(df_cum_em2[df_cum_em2.n_observations>=NSECTOR])
+    n_em3 = len(df_cum_em3[df_cum_em3.n_observations>=NSECTOR])
+
+    print(q7)
+    print(
+        "A:\n"
+        f"Primary mission S1-S26: {100*n_pri/n_stars:.2f}% \n"
+        f"Primary+EM1 S1-{EM1end}: {100*n_em1/n_stars:.2f}% \n"
+        f"Primary+EM1+EM2 S1-S97: {100*n_em2/n_stars:.2f}% \n"
+        f"Primary+EM1+EM2+2year S1-S123: {100*n_em3/n_stars:.2f}% \n"
+    )
+
+    cum_3 = np.round([100*n_pri/n_stars, 100*n_em1/n_stars, 100*n_em2/n_stars,
+              100*n_em3/n_stars],2)
+
+
+    ##########################################
     q5 = (
         'Fraction of the sky observed for >=19 sectors (>= 500 days)'
     )
@@ -313,10 +340,10 @@ def main(versionstr=None):
     cum_36 = np.round([100*n_pri/n_stars, 100*n_em1/n_stars, 100*n_em2/n_stars,
               100*n_em3/n_stars],2)
 
-    data = np.array([cum_sky_once_row, cum_sky_twice_row, cum_19, cum_36])
+    data = np.array([cum_sky_once_row, cum_sky_twice_row, cum_3, cum_19, cum_36])
 
     cols = 'Prime,EM1,EM2,EM3'.split(',')
-    index = [q4,q3,q5,q6]
+    index = [q4,q3,q7,q5,q6]
 
     df = pd.DataFrame(
         {k:v for k,v in zip(cols, data.T)}, index=index
@@ -336,8 +363,11 @@ if __name__=="__main__":
     # main('v06')
     #main('v07')
     #main('v00')
-    #main('v09')
+    main('v09')
     main('v09c')
+    # main('v11a')
+    # main('v09l')
+    # main('v09n')
 
     # main('v01')
     # main('v02')

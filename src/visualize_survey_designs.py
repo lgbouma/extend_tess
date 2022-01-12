@@ -637,10 +637,11 @@ def make_pointing_map(
     # # NOTE: default
     # cbarbounds = np.arange(-1/2, 27, 1)
     # # NOTE: new
-    # cbarbounds = list(np.arange(-1/2, 27, 1))
-    # cbarbounds.append(39.5)
-
-    cbarbounds = [-0.5, 0.5, 1.5, 2.5, 12.5, 39.5 ]
+    if show_holes:
+        cbarbounds = list(np.arange(-1/2, 27, 1))
+        cbarbounds.append(39.5)
+    else:
+        cbarbounds = [-0.5, 0.5, 1.5, 2.5, 12.5, 39.5 ]
     cbarbounds = np.array(cbarbounds)
 
     sel_durn = (nparr(df['obs_duration']) >= 0)
@@ -683,7 +684,9 @@ if __name__=="__main__":
         #'em2_v01', 'em2_v02', 'em2_v03', 'em2_v04', 'em2_v05', 'em2_v06'
         #'em2_v07r'
         #'em2_v09'
-        'em2_v09c'
+        #'em2_v09c'
+        #'em2_v11a', 'em2_v09l',
+        'em2_v09n'
     ]
 
     for sector_interval in sector_intervals:
@@ -696,7 +699,11 @@ if __name__=="__main__":
                 plot_tess=plot_tess,
                 show_holes=False
             )
-    for sector_interval in [(1,97), (1,123)]:
+
+    for sector_interval in [
+        (1,97),
+        (1,123)
+    ]:
         for n in name_strings:
             make_pointing_map(
                 sector_interval,
