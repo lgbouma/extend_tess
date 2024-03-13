@@ -32,7 +32,7 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
              projection='mollweide',savdir='../results/',savname='mwd_0.pdf',
              overplot_galactic_plane=True, is_tess=False, is_radec=None,
              cbarbounds=None, for_proposal=False, overplot_k2_fields=False,
-             for_GRR=False, plot_tess=True, show_holes=False):
+             for_GRR=False, plot_tess=True, show_holes=False, show_scocen=0):
 
     '''
     args, kwargs:
@@ -455,6 +455,23 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
 
         # done k2!
 
+    if show_scocen:
+        scdf = pd.read_csv('../data/KC19_group43_group45_scocen.csv')
+        ra, dec = np.array(scdf['ra']), np.array(scdf['dec'])
+
+        if is_radec:
+            sc_x = _shift_lon_get_x(np.array(ra), origin)
+            sc_y = np.array(dec)
+        else:
+            sc_coord = SkyCoord(ra*u.degree, dec*u.degree, frame='icrs')
+            sc_elon = sc_coord.barycentrictrueecliptic.lon.value
+            sc_elat = sc_coord.barycentrictrueecliptic.lat.value
+            sc_x = _shift_lon_get_x(np.array(sc_elon), origin)
+            sc_y = np.array(sc_elat)
+
+        sc_ax = ax.scatter(np.radians(sc_x),np.radians(sc_y), c="#FF8C00",
+                           marker='.', linewidths=0, zorder=999, s=5,
+                           rasterized=True)
 
 
     if is_radec:
@@ -500,6 +517,9 @@ def plot_mwd(lon,dec,color_val,origin=0,size=3,title='Mollweide projection',
         ax.text(0.99,0.01,'github.com/lgbouma/extend_tess',
                 fontsize='4',transform=ax.transAxes,
                 ha='right',va='bottom')
+
+    if show_scocen:
+        savname = savname.replace(".png", "_showscocen.png")
 
     fig.tight_layout()
     fig.savefig(os.path.join(savdir,savname),dpi=600, bbox_inches='tight')
@@ -584,11 +604,12 @@ def get_n_observations(sector_interval, dirnfile, outpath, n_stars, merged=False
 
 def make_pointing_map(
     sector_interval, NAME_STRING, for_proposal=False, overplot_k2_fields=False,
-    plot_tess=True, show_holes=False
+    plot_tess=True, show_holes=False, show_scocen=0
 ):
 
     datadir = '../data/'
-    savdir = '../results/visualize_survey_designs/EM2_SENIOR_REVIEW'
+    #savdir = '../results/visualize_survey_designs/EM2_SENIOR_REVIEW'
+    savdir = '../results/visualize_survey_designs/EM3_BRAINSTORM'
     orbit_duration_days = 1 #27.32 / 2
 
     filename = f'{NAME_STRING}.csv'
@@ -659,24 +680,35 @@ def make_pointing_map(
                  cbarbounds=cbarbounds,
                  for_proposal=for_proposal,
                  overplot_k2_fields=overplot_k2_fields,
-                 plot_tess=plot_tess, show_holes=show_holes)
+                 plot_tess=plot_tess, show_holes=show_holes,
+                 show_scocen=show_scocen)
 
 
 if __name__=="__main__":
 
-    # BEGIN OPTIONS
+    # PM: S1-S26 (start 07/25/18)
+    # EM1: S27-S55 (start 07/04/20)
+    # EM2: S56-S96 ()
+    # EM3: S97-SYY (start 9/16/2025)
+
+    #################
+    # BEGIN OPTIONS #
     for_proposal=1          # false to debug
     overplot_k2_fields=1    # true to activate k2 field overplot
     plot_tess=1             # true to activate tess field overplot
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
+    show_scocen=1           # true to show KC19 scocen
+
     # intervals of plots you want to make
-    sector_intervals = [  # all relevant for EM2+2year
-        (1,26), (27,56), (57,97), (1,56), (98, 123), (1,97), (1,123), #(27,47)
+    #sector_intervals = [  # all relevant for EM2+2year
+    #    (1,26), (27,56), (57,97), (1,56), (98, 123), (1,97), (1,123), #(27,47)
+    #]
+    sector_intervals = [  # cumulative EM2+2year
+        (1,97), (1,123)
     ]
-    # sector_intervals = [  # cumulative EM2+2year
-    #     (1,97), (1,123)
-    # ]
-    # END OPTIONS
+
+    # END OPTIONS #
+    ###############
 
     # NOTE: this will be updated. em2_v00.csv for instance, is made by
     # src.convert_vanderspek_to_bouma_format.py
@@ -684,9 +716,9 @@ if __name__=="__main__":
         #'em2_v01', 'em2_v02', 'em2_v03', 'em2_v04', 'em2_v05', 'em2_v06'
         #'em2_v07r'
         #'em2_v09'
-        #'em2_v09c'
+        'em2_v09c'
         #'em2_v11a', 'em2_v09l',
-        'em2_v09n'
+        #'em2_v09n'
     ]
 
     for sector_interval in sector_intervals:
@@ -697,7 +729,8 @@ if __name__=="__main__":
                 for_proposal=for_proposal,
                 overplot_k2_fields=overplot_k2_fields,
                 plot_tess=plot_tess,
-                show_holes=False
+                show_holes=False,
+                show_scocen=show_scocen
             )
 
     for sector_interval in [
@@ -711,6 +744,5 @@ if __name__=="__main__":
                 for_proposal=for_proposal,
                 overplot_k2_fields=overplot_k2_fields,
                 plot_tess=plot_tess,
-                show_holes=True
+                show_holes=True,
             )
-
