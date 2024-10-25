@@ -29,6 +29,12 @@ def viz_obs(namestr, projection=None):
         sector_min, sector_max = 97, 134
     elif namestr.startswith('cumul_em3'):
         sector_min, sector_max = 1, 134
+    elif namestr.startswith('cumul_pm'):
+        sector_min, sector_max = 1, 26
+    elif namestr.startswith('cumul_em1'):
+        sector_min, sector_max = 1, 55
+    elif namestr.startswith('cumul_em2'):
+        sector_min, sector_max = 1, 96
     else:
         sector_min, sector_max = 1, 96
 
@@ -52,25 +58,31 @@ def viz_obs(namestr, projection=None):
         csvname = namestr
 
     csvpath = f'/Users/luke/Dropbox/proj/extend_tess/data/{csvname}.csv'
-    assert os.path.exists(csvpath)
-    df = pd.read_csv(csvpath)
+    if os.path.exists(csvpath):
+        df = pd.read_csv(csvpath)
 
-    ras, decs, rolls = [],[],[]
-    for sectornum in iter_sector_range:
-        sc_roll_key = 'sc_eroll' if 'sc_eroll' in df else 'sc_roll'
-        t = tuple(df.loc[df.S==sectornum, ['sc_elon', 'sc_elat', sc_roll_key]].iloc[0])
-        eq = ecliptic_to_equatorial_orientation(t[0], t[1], t[2])
-        ras.append(eq[0])
-        decs.append(eq[1])
-        rolls.append(eq[2])
+        ras, decs, rolls = [],[],[]
+        for sectornum in iter_sector_range:
+            sc_roll_key = 'sc_eroll' if 'sc_eroll' in df else 'sc_roll'
+            t = tuple(df.loc[df.S==sectornum, ['sc_elon', 'sc_elat', sc_roll_key]].iloc[0])
+            eq = ecliptic_to_equatorial_orientation(t[0], t[1], t[2])
+            ras.append(eq[0])
+            decs.append(eq[1])
+            rolls.append(eq[2])
 
-    # All the TESS pointings
-    hypot_pointings = np.vstack([ras, decs, rolls]).T
+        # All the TESS pointings
+        hypot_pointings = np.vstack([ras, decs, rolls]).T
+    else:
+        print('WRN! Did not load in any CSV file for pointings.')
+        pass
+
     real_pointings = tesswcs.pointings[['RA', "Dec", "Roll"]].to_pandas().values
 
     if namestr.startswith("cumul_em3"):
         # concatenate hypothetical and real pointings for cumulative view
         hypot_pointings = np.vstack((real_pointings, hypot_pointings))
+    elif namestr.startswith("cumul"):
+        hypot_pointings = real_pointings[sector_min-1:sector_max,:]
 
     outdir = '/Users/luke/Dropbox/proj/extend_tess/results/visualize_survey_designs/EM3_BRAINSTORM'
     cachepath = join(outdir, f'cache_{namestr}_{sstr}.npz')
@@ -267,7 +279,8 @@ def viz_obs(namestr, projection=None):
 
 if __name__ == "__main__":
 
-    names = ['em3_v00', 'em3_v02', 'cumul_em3_v00', 'em3_v01', 'em3_v03', 'em2_v09c']
+    #names = ['em3_v00', 'em3_v02', 'cumul_em3_v00', 'em3_v01', 'em3_v03', 'em2_v09c']
+    names = ['cumul_pm', 'cumul_em1', 'cumul_em2', 'cumul_em3_v00']
 
     for name in names:
         viz_obs(name, projection='mollweide')
