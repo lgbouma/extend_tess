@@ -146,7 +146,7 @@ def plot_rectangles_on_sphere(pointing, sc_elons, sc_elats, sc_erolls, view_kwar
     ax.plot(x_eq, y_eq, z_eq, color='black', linewidth=0.5, ls=':')
 
     # Adjust the view
-    ax.set_box_aspect([1, 1, 1])  # Equal aspect ratio
+    ax.set_box_aspect([1, 1, 815/893])  # Equal aspect ratio
     ax.axis('off')
 
     # Apply view kwargs
