@@ -3,7 +3,41 @@ import matplotlib.pyplot as plt
 import matplotlib.patches as mpatches
 from mpl_toolkits.mplot3d import proj3d
 
-def plot_rectangles_on_sphere(pointing, sc_elons, sc_elats, sc_erolls, view_kwargs={}):
+def main():
+
+    pointings = ['standard', 'c3p0', '54-40']
+
+    for pointing in pointings:
+
+        # standard
+        dl = 360/13
+        if pointing == 'standard':
+            sc_elons = 120 + np.array([dl, 0, -dl])
+            sc_elats = [54, 54, 54]
+            sc_erolls = [179.99, 179.99, 179.99]
+            view_kwargs = {'elev':20, 'azim':90}
+
+        # c3po
+        elif pointing == 'c3p0':
+            sc_elons = 120 + np.array([dl, 0, -dl])
+            sc_elats = [85, 85, 85]
+            sc_erolls = [179.99, 179.99, 179.99]
+            view_kwargs = {'elev':20, 'azim':90}
+
+        # 54/40
+        elif pointing == '54-40':
+            sc_elons = 100 + np.array([dl, 0, -dl, -2*dl])
+            sc_elats = [54, 54, 54, 54]
+            sc_erolls = [40, 40, 40, 40]
+            view_kwargs = {'elev':20, 'azim':90}
+
+        plot_rectangles_on_sphere(pointing, sc_elons, sc_elats, sc_erolls,
+                                  view_kwargs=view_kwargs)
+
+
+def plot_rectangles_on_sphere(
+    pointing, sc_elons, sc_elats, sc_erolls, view_kwargs={}
+):
     fig = plt.figure(figsize=(4, 4), dpi=300)
     ax = fig.add_subplot(111, projection='3d')
     fig.patch.set_facecolor('white')
@@ -138,7 +172,7 @@ def plot_rectangles_on_sphere(pointing, sc_elons, sc_elats, sc_erolls, view_kwar
         arrow_length_ratio=0.4, linewidth=0.5
     )
 
-    # plot equator
+    # Plot equator
     theta = np.linspace(0, 2 * np.pi, 100)
     x_eq = np.cos(theta)
     y_eq = np.sin(theta)
@@ -157,33 +191,5 @@ def plot_rectangles_on_sphere(pointing, sc_elons, sc_elats, sc_erolls, view_kwar
 
     plt.savefig(f'../results/EM3_rectangle_sphere_plot/{pointing}.pdf')
 
-# Example usage
-
-pointings = ['standard', 'c3p0', '54-40']
-
-for pointing in pointings:
-
-    # standard
-    dl = 360/13
-    if pointing == 'standard':
-        sc_elons = 120 + np.array([dl, 0, -dl])
-        sc_elats = [54, 54, 54]
-        sc_erolls = [179.99, 179.99, 179.99]
-        view_kwargs = {'elev':20, 'azim':90}
-
-    # c3po
-    elif pointing == 'c3p0':
-        sc_elons = 120 + np.array([dl, 0, -dl])
-        sc_elats = [85, 85, 85]
-        sc_erolls = [179.99, 179.99, 179.99]
-        view_kwargs = {'elev':20, 'azim':90}
-
-    # 54/40
-    elif pointing == '54-40':
-        sc_elons = 100 + np.array([dl, 0, -dl, -2*dl])
-        sc_elats = [54, 54, 54, 54]
-        sc_erolls = [40, 40, 40, 40]
-        view_kwargs = {'elev':20, 'azim':90}
-
-    plot_rectangles_on_sphere(pointing, sc_elons, sc_elats, sc_erolls,
-                              view_kwargs=view_kwargs)
+if __name__ == "__main__":
+    main()
