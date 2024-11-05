@@ -609,7 +609,8 @@ def make_pointing_map(
 
     datadir = '../data/'
     #savdir = '../results/visualize_survey_designs/EM2_SENIOR_REVIEW'
-    savdir = '../results/visualize_survey_designs/EM3_BRAINSTORM'
+    savdir = '../results/visualize_survey_designs/EM3_SENIOR_REVIEW'
+    if not os.path.exists(savdir): os.mkdir(savdir)
     orbit_duration_days = 1 #27.32 / 2
 
     filename = f'{NAME_STRING}.csv'
@@ -689,12 +690,12 @@ if __name__=="__main__":
     # PM: S1-S26 (start 07/25/18)
     # EM1: S27-S55 (start 07/04/20)
     # EM2: S56-S96 ()
-    # EM3: S97-SYY (start 9/16/2025)
+    # EM3: S97-S134 (start 9/15/2025)
 
     #################
     # BEGIN OPTIONS #
-    for_proposal=1          # false to debug
-    overplot_k2_fields=1    # true to activate k2 field overplot
+    for_proposal=0          # false to debug
+    overplot_k2_fields=0    # true to activate k2 field overplot
     plot_tess=1             # true to activate tess field overplot
     for_GRR=0               # if true, make GRR's NCP-pointing idea.
     show_scocen=1           # true to show KC19 scocen
@@ -703,12 +704,14 @@ if __name__=="__main__":
     #sector_intervals = [  # all relevant for EM2+2year
     #    (1,26), (27,56), (57,97), (1,56), (98, 123), (1,97), (1,123), #(27,47)
     #]
-    sector_intervals = [  # cumulative EM2+2year
-        (1,97), (1,123)
-    ]
+    #sector_intervals = [  # cumulative EM2+2year
+    #    (1,56), (1,97), (1,123)
+    #]
 
-    # END OPTIONS #
-    ###############
+    # EM3 only
+    sector_intervals = [
+        (97, 134)
+    ]
 
     # NOTE: this will be updated. em2_v00.csv for instance, is made by
     # src.convert_vanderspek_to_bouma_format.py
@@ -716,10 +719,14 @@ if __name__=="__main__":
         #'em2_v01', 'em2_v02', 'em2_v03', 'em2_v04', 'em2_v05', 'em2_v06'
         #'em2_v07r'
         #'em2_v09'
-        'em2_v09c'
+        #'em2_v09c'
         #'em2_v11a', 'em2_v09l',
         #'em2_v09n'
+        'luke_S2_S2+4_54_14_e2_G2_C11_G3_e2'
     ]
+
+    # END OPTIONS #
+    ###############
 
     for sector_interval in sector_intervals:
         for n in name_strings:
