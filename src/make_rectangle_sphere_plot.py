@@ -5,50 +5,71 @@ from mpl_toolkits.mplot3d import proj3d
 
 def main():
 
-    pointings = ['standard', 'c3p0', '54-40']
+    pointings = ['standard', 'c3p0', '54-40', '70-40', 'everyother']
+    nsectors = [3, 4]
+    elevs = [20, 90]
 
     for pointing in pointings:
 
-        # standard
-        dl = 360/13
-        if pointing == 'standard':
-            sc_elons = 120 + np.array([dl, 0, -dl])
-            sc_elats = [54, 54, 54]
-            sc_erolls = [179.99, 179.99, 179.99]
-            view_kwargs = {'elev':20, 'azim':90}
+        for nsector in nsectors:
 
-        # c3po
-        elif pointing == 'c3p0':
-            sc_elons = 120 + np.array([dl, 0, -dl])
-            sc_elats = [85, 85, 85]
-            sc_erolls = [179.99, 179.99, 179.99]
-            view_kwargs = {'elev':20, 'azim':90}
+            for elev in elevs:
 
-        # 54/40
-        elif pointing == '54-40':
-            sc_elons = 100 + np.array([dl, 0, -dl, -2*dl])
-            sc_elats = [54, 54, 54, 54]
-            sc_erolls = [40, 40, 40, 40]
-            view_kwargs = {'elev':20, 'azim':90}
+                # standard
+                dl = 360/13
+                if pointing == 'standard':
+                    sc_elons = 120 + np.arange(dl - dl*nsector, dl, dl)[::-1]
+                    sc_elats = nsector * [54]
+                    sc_erolls = nsector * [179.99]
+                    view_kwargs = {'elev':elev, 'azim':90}
 
-        plot_rectangles_on_sphere(pointing, sc_elons, sc_elats, sc_erolls,
-                                  view_kwargs=view_kwargs)
+                # c3po
+                elif pointing == 'c3p0':
+                    sc_elons = 120 + np.arange(dl - dl*nsector, dl, dl)[::-1]
+                    sc_elats = nsector * [85]
+                    sc_erolls = nsector * [179.99]
+                    view_kwargs = {'elev':elev, 'azim':90}
+
+                # 54/40
+                elif pointing == '54-40':
+                    sc_elons = 100 + np.arange(2*dl - dl*nsector, 2*dl, dl)[::-1]
+                    sc_elats = nsector * [54]
+                    sc_erolls = nsector * [40]
+                    view_kwargs = {'elev':elev, 'azim':90}
+
+                elif pointing == '70-40':
+                    sc_elons = 100 + np.arange(2*dl - dl*nsector, 2*dl, dl)[::-1]
+                    sc_elats = nsector * [70]
+                    sc_erolls = nsector * [40]
+                    view_kwargs = {'elev':elev, 'azim':90}
+
+                elif pointing == 'everyother':
+                    sc_elons = 195 + np.arange(dl - 2*dl*nsector, dl, 2*dl)[::-1]
+                    sc_elats = nsector * [54]
+                    sc_erolls = nsector * [179.99]
+                    view_kwargs = {'elev':elev, 'azim':90}
+
+                plot_rectangles_on_sphere(pointing, sc_elons, sc_elats, sc_erolls,
+                                          nsector,
+                                          view_kwargs=view_kwargs)
 
 
 def plot_rectangles_on_sphere(
-    pointing, sc_elons, sc_elats, sc_erolls, view_kwargs={}
-):
+    pointing, sc_elons, sc_elats, sc_erolls, nsector, view_kwargs={}
+    ):
+
     fig = plt.figure(figsize=(4, 4), dpi=300)
     ax = fig.add_subplot(111, projection='3d')
     fig.patch.set_facecolor('white')
     ax.set_facecolor('white')
 
     # Plot the unit sphere
-    u, v = np.mgrid[0:2*np.pi:50j, 0:np.pi:25j]
-    x = np.cos(u)*np.sin(v)
-    y = np.sin(u)*np.sin(v)
-    z = np.cos(v)
-    ax.plot_surface(x, y, z, color='w', alpha=0.05, linewidth=0)
+    u, v = np.mgrid[0:2*np.pi:500j, 0:np.pi:250j]
+    r = 1.0
+    x = r*np.cos(u)*np.sin(v)
+    y = r*np.sin(u)*np.sin(v)
+    z = r*np.cos(v)
+    ax.plot_surface(x, y, z, color='white', alpha=0.05, linewidth=0)
 
     colors = [
         '#FFFF00',  # Yellow
@@ -164,16 +185,14 @@ def plot_rectangles_on_sphere(
             color='black', linewidth=0.5
         )
 
-    # Add the arrow from the center to slightly beyond the north pole
-    ax.quiver(
-        0, 0, 1,  # Starting point
-        0, 0, 1.2,  # Direction vector
-        length=0.2, color='black', alpha=0.5,
-        arrow_length_ratio=0.4, linewidth=0.5
-    )
-
     # Plot equator
-    theta = np.linspace(0, 2 * np.pi, 100)
+    max_theta = np.pi
+    if 'elev' in view_kwargs:
+        elev = view_kwargs['elev']
+        if elev == 90:
+            max_theta *= 2
+
+    theta = np.linspace(0, max_theta, 100)
     x_eq = np.cos(theta)
     y_eq = np.sin(theta)
     z_eq = np.zeros_like(theta)
@@ -186,10 +205,12 @@ def plot_rectangles_on_sphere(
     # Apply view kwargs
     if 'elev' in view_kwargs and 'azim' in view_kwargs:
         ax.view_init(elev=view_kwargs['elev'], azim=view_kwargs['azim'])
+        elev = view_kwargs['elev']
     else:
         ax.view_init(elev=20, azim=90)
+        elev = 20
 
-    plt.savefig(f'../results/EM3_rectangle_sphere_plot/{pointing}.pdf')
+    plt.savefig(f'../results/EM3_rectangle_sphere_plot/{pointing}_N{nsector}_elev{elev}.pdf')
 
 if __name__ == "__main__":
     main()
