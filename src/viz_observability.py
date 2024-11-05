@@ -23,7 +23,7 @@ def _shift_lon(lon, origin):
     x=-x    # reverse the scale: East to the left
     return x
 
-def viz_obs(namestr, projection=None):
+def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
 
     if namestr.startswith('em3'):
         sector_min, sector_max = 97, 134
@@ -50,6 +50,7 @@ def viz_obs(namestr, projection=None):
         'em3_v01': 'luke_S2_S2+4_54_14_e2_G2_C12_G2_e2.csv',
         'em3_v02': 'luke_S2_S2+4_C2_G3_C9_e2_G2_54_14_e2.csv',
         'em3_v03': 'luke_S2_S2+4_C3_G2_C9_e2_G2_54_14_e2.csv',
+        'em3_v04': 'luke_S2+4_70_16_e2_G2_C11_G3_e2_roll1.csv'
     }
     namekey = namestr.lstrip("cumul_")
     if namekey in namedict:
@@ -179,7 +180,7 @@ def viz_obs(namestr, projection=None):
         )
         cbar.ax.set_yticklabels(ylabels)
         cbar.ax.tick_params(direction='in')
-        cbar.set_label('Lunar months observed', rotation=270, labelpad=10)
+        cbar.set_label('Months observed', rotation=270, labelpad=10)
 
         tick_labels = np.arange(0, 361, 60)
         tick_locs = tick_labels
@@ -249,22 +250,26 @@ def viz_obs(namestr, projection=None):
         )
         cbar.ax.set_xticklabels(ylabels, fontsize='small')
         cbar.ax.tick_params(direction='in', length=0)
-        cbar.set_label('Lunar months observed', rotation=0, labelpad=5)
+        cbar.set_label('Months observed', rotation=0, labelpad=5)
 
         tick_label_locs = np.arange(-150, 181, 60)
         tick_locs = np.deg2rad(tick_label_locs)
-        tick_labels = ['210', '270', '330', '30', '90', '150']
         ax.set_xticks(tick_locs)
-        ax.set_xticklabels(tick_labels, fontsize='small')
         ax.set_yticks(np.deg2rad([-60, -30, 0, 30, 60]))
-        ax.set_yticklabels(['-60', '-30', '0', '30', '60'], fontsize='small')
+        if showticklabels:
+            tick_labels = ['210', '270', '330', '30', '90', '150']
+            ax.set_xticklabels(tick_labels, fontsize='small')
+            ax.set_yticklabels(['-60', '-30', '0', '30', '60'], fontsize='small')
+        else:
+            ax.set_xticklabels([], fontsize='small')
+            ax.set_yticklabels([], fontsize='small')
 
         ax.grid(color='lightgray', linestyle='--', linewidth=0.25, zorder=-3,
                 alpha=0.3)
 
-
-    ax.set(xlabel='RA [deg]', ylabel='Dec [deg]',
-           title=f"TESS Sectors {sector_min}-{sector_max}")
+    if showtitles:
+        ax.set(xlabel='RA [deg]', ylabel='Dec [deg]',
+               title=f"TESS Sectors {sector_min}-{sector_max}")
 
     outpath = join(
         outdir,
@@ -281,8 +286,9 @@ if __name__ == "__main__":
 
     #names = ['em3_v00', 'em3_v02', 'cumul_em3_v00', 'em3_v01', 'em3_v03', 'em2_v09c']
     names = ['cumul_pm', 'cumul_em1', 'cumul_em2', 'cumul_em3_v00']
+    names = ['em3_v04', 'cumul_em2', 'cumul_em3_v04'] # jnw's requests
 
     for name in names:
         viz_obs(name, projection='mollweide')
         #viz_obs(name, projection='lambert')
-        viz_obs(name, projection='rect')
+        #viz_obs(name, projection='rect')
