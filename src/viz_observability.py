@@ -26,9 +26,9 @@ def _shift_lon(lon, origin):
 def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
 
     if namestr.startswith('em3'):
-        sector_min, sector_max = 97, 134
+        sector_min, sector_max = 97, 136
     elif namestr.startswith('cumul_em3'):
-        sector_min, sector_max = 1, 134
+        sector_min, sector_max = 1, 136
     elif namestr.startswith('cumul_pm'):
         sector_min, sector_max = 1, 26
     elif namestr.startswith('cumul_em1'):
@@ -40,17 +40,25 @@ def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
 
     if namestr.startswith('cumul_em3'):
         # iteration below is only over em3
-        iter_sector_range = list(range(97, 134))
+        iter_sector_range = list(range(97, 136))
     else:
-        iter_sector_range = list(range(sector_min, sector_max))
-    sstr = f'S{str(sector_min).zfill(4)}_S{str(sector_max).zfill(4)}'
+        iter_sector_range = list(range(sector_min, sector_max+1))
+
+    # NOTE: this logic is b/c of the bizarre double-count sector problem.
+    if sector_max == 136:
+        printmax = 134
+    else:
+        printmax = sector_max
+
+    sstr = f'S{str(sector_min).zfill(4)}_S{str(printmax).zfill(4)}'
 
     namedict = {
         'em3_v00': 'luke_S2_S2+4_54_14_e2_G2_C11_G3_e2.csv',
         'em3_v01': 'luke_S2_S2+4_54_14_e2_G2_C12_G2_e2.csv',
         'em3_v02': 'luke_S2_S2+4_C2_G3_C9_e2_G2_54_14_e2.csv',
         'em3_v03': 'luke_S2_S2+4_C3_G2_C9_e2_G2_54_14_e2.csv',
-        'em3_v04': 'luke_S2+4_70_16_e2_G2_C11_G3_e2_roll1.csv'
+        'em3_v04': 'luke_S2+4_70_16_e2_G2_C11_G3_e2_roll1.csv',
+        'em3_v05': 'luke_S2+4_70_16_e2_G2_C11_G3_e2_roll1_editdup.csv'
     }
     namekey = namestr.lstrip("cumul_")
     if namekey in namedict:
@@ -85,7 +93,10 @@ def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
     elif namestr.startswith("cumul"):
         hypot_pointings = real_pointings[sector_min-1:sector_max,:]
 
-    outdir = '/Users/luke/Dropbox/proj/extend_tess/results/visualize_survey_designs/EM3_BRAINSTORM'
+    outdir = (
+        '/Users/luke/Dropbox/proj/extend_tess/results/'+
+        'visualize_survey_designs/EM3_BRAINSTORM'
+    )
     cachepath = join(outdir, f'cache_{namestr}_{sstr}.npz')
     if os.path.exists(cachepath):
         print(f'loading {cachepath}')
@@ -98,12 +109,17 @@ def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
     else:
 
         # If you increase the resolution this will take longer to calculate.
-        #RA, Dec = np.mgrid[:360:2000j, -90:90:1201j] # default takes 10 minutes
+        DEBUG = False # NOTE: change this as desired
 
-        # about 1.7M points ; kind of slow
-        ra = np.linspace(0, 360, 2*824)   # 824 points from 0 to 360 degrees
-        dec = np.linspace(-90, 90, 2*513)  # 513 points from -90 to 90 degrees
-        RA, Dec = np.meshgrid(ra, dec, indexing='ij')
+        if not DEBUG:
+            # about 3.8M points ; kind of slow
+            ra = np.linspace(0, 360, 3*824)   # 824 points from 0 to 360 degrees
+            dec = np.linspace(-90, 90, 3*513)  # 513 points from -90 to 90 degrees
+            RA, Dec = np.meshgrid(ra, dec, indexing='ij')
+        else:
+            ra = np.linspace(0, 360, 200)   # 824 points from 0 to 360 degrees
+            dec = np.linspace(-90, 90, 201)  # 513 points from -90 to 90 degrees
+            RA, Dec = np.meshgrid(ra, dec, indexing='ij')
 
         #RA, Dec = np.mgrid[:360:824j, -90:90:513j]  # takes 30 sec laptop
         #RA, Dec = np.mgrid[:360:100j, -90:90:100j]  # takes 30 sec laptop
@@ -286,7 +302,8 @@ if __name__ == "__main__":
 
     #names = ['em3_v00', 'em3_v02', 'cumul_em3_v00', 'em3_v01', 'em3_v03', 'em2_v09c']
     names = ['cumul_pm', 'cumul_em1', 'cumul_em2', 'cumul_em3_v00']
-    names = ['em3_v04', 'cumul_em2', 'cumul_em3_v04'] # jnw's requests
+
+    names = ['em3_v05', 'cumul_em2', 'cumul_em3_v05'] # jnw's requests
 
     for name in names:
         viz_obs(name, projection='mollweide')
