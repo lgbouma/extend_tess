@@ -23,7 +23,8 @@ def _shift_lon(lon, origin):
     x=-x    # reverse the scale: East to the left
     return x
 
-def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
+def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0,
+            ecliptic_coords=0):
 
     if namestr.startswith('em3'):
         sector_min, sector_max = 97, 136
@@ -50,7 +51,9 @@ def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
     else:
         printmax = sector_max
 
-    sstr = f'S{str(sector_min).zfill(4)}_S{str(printmax).zfill(4)}'
+    estr = '_ecliptic' if ecliptic_coords else ''
+    sstr = f'S{str(sector_min).zfill(4)}_S{str(printmax).zfill(4)}{estr}'
+    bsstr = f'S{str(sector_min).zfill(4)}_S{str(printmax).zfill(4)}'
 
     namedict = {
         'em3_v00': 'luke_S2_S2+4_54_14_e2_G2_C11_G3_e2.csv',
@@ -97,7 +100,7 @@ def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
         '/Users/luke/Dropbox/proj/extend_tess/results/'+
         'visualize_survey_designs/EM3_BRAINSTORM'
     )
-    cachepath = join(outdir, f'cache_{namestr}_{sstr}.npz')
+    cachepath = join(outdir, f'cache_{namestr}_{bsstr}.npz')
     if os.path.exists(cachepath):
         print(f'loading {cachepath}')
         # Load arrays from the .npz file
@@ -217,10 +220,19 @@ def viz_obs(namestr, projection=None, showtitles=0, showticklabels=0):
         Dec_flat = Dec.flatten(order='F')
         nobs_flat = nobs.flatten(order='F')
 
+        coords = SkyCoord(RA_flat, Dec_flat, unit='deg')
+        elon_flat = coords.barycentrictrueecliptic.lon.value
+        elat_flat = coords.barycentrictrueecliptic.lat.value
+
         # Convert RA and Dec to radians for plotting
         # Shift RA by 180 degrees to center the projection
-        RA_rad = np.deg2rad(RA_flat - 180)
-        Dec_rad = np.deg2rad(Dec_flat)
+        if not ecliptic_coords:
+            RA_rad = np.deg2rad(RA_flat - 180)
+            Dec_rad = np.deg2rad(Dec_flat)
+        else:
+            RA_rad = np.deg2rad(elon_flat- 180)
+            Dec_rad = np.deg2rad(elat_flat)
+
 
         # Plot the data using scatter
         do_naive_scatter = 0
@@ -306,6 +318,8 @@ if __name__ == "__main__":
     names = ['em3_v05', 'cumul_em2', 'cumul_em3_v05'] # jnw's requests
 
     for name in names:
-        viz_obs(name, projection='mollweide')
+        viz_obs(name, projection='mollweide', ecliptic_coords=1)
+        #viz_obs(name, projection='mollweide', ecliptic_coords=0)
+
         #viz_obs(name, projection='lambert')
         #viz_obs(name, projection='rect')
