@@ -25,7 +25,7 @@ def _shift_lon(lon, origin):
     return x
 
 def plot_rectangles_on_sphere(
-    pointing, projection, view_kwargs={}
+    pointing, projection, view_kwargs={}, extralats=None
     ):
 
     assert pointing in ['standard', 'c3p0', '70-40', 'everyother']
@@ -177,7 +177,8 @@ def plot_rectangles_on_sphere(
         RA_rad = np.deg2rad(elon_flat- 180)
         Dec_rad = np.deg2rad(elat_flat)
 
-        if pointing in ['70-40', 'everyother']:
+        if pointing in ['everyother']:
+            # previously did this for '70-40' too...
             Dec_rad *= -1.  # sign flip based on available pointings
 
     #
@@ -331,20 +332,49 @@ def plot_rectangles_on_sphere(
         ax.plot(x_eq, y_eq, z_eq, color='lightgray', linewidth=0.5, ls=':',
                 zorder=1)
 
+        if extralats and elev == 90:
+            if elev == 90:
+                angles = np.arange(10, 90, 10)  # Latitude angles in degrees
+            elif elev == 20:
+                # NOTE: doesn't quite work...
+                angles = np.hstack([
+                    np.arange(10, 90, 10),
+                    np.arange(-10, -90, -10)
+                ])
+            ls = '--'
+            for angle in angles:
+                phi = np.deg2rad(angle)  # Convert latitude angle to radians
+                r_circle = np.sin(phi)  # Radial distance of the latitude circle
+                z = np.cos(phi)  # z-coordinate for constant latitude
+
+                # Parametrize the circle in the xy-plane at the given latitude
+                _x = r_circle * np.cos(theta)
+                _y = r_circle * np.sin(theta)
+                _z = z * np.ones_like(theta)  # Same z-value for all points
+                if angle < 0:
+                    _z *= -1
+                    _x *= -1
+                    _y *= -1
+
+                ax.plot(_x, _y, _z, color='lightgray', linewidth=0.5, ls=ls, zorder=1)
+
+
         # Plot rim
-        if elev != 90:
-            latitudes = np.linspace(-np.pi/2, np.pi/2, 1000)
-            longitudes = [
-                np.deg2rad(azim) + np.pi/2,
-                np.deg2rad(azim) - np.pi/2,
-            ]
-            for longitude in longitudes:
-                r = 1.01
-                xr = r * np.cos(latitudes) * np.cos(longitude)
-                yr = r * np.cos(latitudes) * np.sin(longitude)
-                zr = r * np.sin(latitudes)
-                ax.plot(xr, yr, zr, linewidth=0.5, ls='-', color='lightgray',
-                        zorder=0)
+        PLOTRIM = 1
+        if PLOTRIM:
+            if elev != 90:
+                latitudes = np.linspace(-np.pi/2, np.pi/2, 1000)
+                longitudes = [
+                    np.deg2rad(azim) + np.pi/2,
+                    np.deg2rad(azim) - np.pi/2,
+                ]
+                for longitude in longitudes:
+                    r = 1.01
+                    xr = r * np.cos(latitudes) * np.cos(longitude)
+                    yr = r * np.cos(latitudes) * np.sin(longitude)
+                    zr = r * np.sin(latitudes)
+                    ax.plot(xr, yr, zr, linewidth=0.5, ls='-', color='lightgray',
+                            zorder=0)
 
         ax.set_xlim([-1.05, 1.05])
         ax.set_ylim([-1.05, 1.05])
@@ -373,6 +403,8 @@ def plot_rectangles_on_sphere(
         cbar.set_label('Months observed', rotation=0, labelpad=5)
 
         sstr = f'_elev{elev}'
+        if extralats:
+            sstr += '_extralats'
 
         fig.tight_layout()
 
@@ -406,6 +438,18 @@ if __name__ == "__main__":
     }
 
     for pointing in pointings:
+
         for elev in elevs:
+
+            if elev == 90:
+                extralats = 1
+            else:
+                extralats = 0
+
             view_kwargs = {'elev':elev, 'azim':azim_dict[pointing]}
-            plot_rectangles_on_sphere(pointing, projection, view_kwargs=view_kwargs)
+
+            plot_rectangles_on_sphere(
+                pointing, projection,
+                view_kwargs=view_kwargs,
+                extralats=extralats
+            )
