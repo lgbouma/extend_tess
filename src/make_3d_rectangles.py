@@ -446,6 +446,9 @@ if __name__ == "__main__":
             else:
                 extralats = 0
 
+            if elev == 20 and pointing == '70-40':
+                elev *= -1
+
             view_kwargs = {'elev':elev, 'azim':azim_dict[pointing]}
 
             plot_rectangles_on_sphere(
