@@ -25,7 +25,7 @@ def _shift_lon(lon, origin):
     return x
 
 def plot_rectangles_on_sphere(
-    pointing, projection, view_kwargs={}, extralats=None
+    pointing, projection, view_kwargs={}, extralats=None, override_sector_max=None
     ):
 
     assert pointing in ['standard', 'c3p0', '70-40', 'everyother']
@@ -38,6 +38,9 @@ def plot_rectangles_on_sphere(
         sector_min, sector_max, dsector = 101, 104, 1
     elif pointing == 'everyother':
         sector_min, sector_max, dsector = 1, 4, 2
+
+    if override_sector_max is not None:
+        sector_max = override_sector_max
 
     sstr = f'S{str(sector_min).zfill(4)}_S{str(sector_max).zfill(4)}'
 
@@ -402,7 +405,7 @@ def plot_rectangles_on_sphere(
         cbar.ax.tick_params(direction='in', length=0)
         cbar.set_label('Months observed', rotation=0, labelpad=5)
 
-        sstr = f'_elev{elev}'
+        sstr = f'_elev{elev}_smax{str(sector_max).zfill(4)}'
         if extralats:
             sstr += '_extralats'
 
@@ -424,8 +427,19 @@ def plot_rectangles_on_sphere(
 
 if __name__ == "__main__":
 
-    pointings = ['standard']#, 'c3p0', '70-40', 'everyother']
-    pointings = ['standard', 'c3p0', '70-40', 'everyother']
+    #, 'c3p0', '70-40', 'everyother']
+    #pointings = ['standard', 'c3p0', '70-40' 'everyother']
+
+    # final winn request...
+    pointings = ['standard']
+    sector_maxs = [20,21,22,23] # standard
+
+    pointings = ['c3p0']
+    sector_maxs = [74,75,76,77] # c3p0
+
+    pointings = ['70-40']
+    sector_maxs = [101,102,103,104]
+
     projection = '3d' # or 'mollweide'
 
     elevs = [20, 90]
@@ -451,8 +465,11 @@ if __name__ == "__main__":
 
             view_kwargs = {'elev':elev, 'azim':azim_dict[pointing]}
 
-            plot_rectangles_on_sphere(
-                pointing, projection,
-                view_kwargs=view_kwargs,
-                extralats=extralats
-            )
+            for sector_max in sector_maxs:
+
+                plot_rectangles_on_sphere(
+                    pointing, projection,
+                    view_kwargs=view_kwargs,
+                    extralats=extralats,
+                    override_sector_max=sector_max
+                )
